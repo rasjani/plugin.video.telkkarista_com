@@ -1,7 +1,5 @@
 __author__ = 'rasjani'
 
-import .request
-
 from .user import User 
 from .streams import Streams
 from .epg import Epg

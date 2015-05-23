@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+  <!-- Plugin name -->
+  <string id="30000">Telkkarista.com</string>
+  <string id="30001">Suoralähetykset</string>
+  <string id="30002">Ohjelmat</string>
+  <string id="30003">Haku</string>
+  <string id="30004">Asetukset</string>
+</strings>

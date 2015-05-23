@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
   <!-- Plugin name -->
-  <string id="30000">Telkkarista</string>
+  <string id="30000">Telkkarista.com</string>
+  <string id="30001">Live channels</string>
+  <string id="30002">Programs</string>
+  <string id="30003">Search</string>
+  <string id="30004">Settings</string>
 </strings>
