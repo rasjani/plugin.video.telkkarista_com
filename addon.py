@@ -1,5 +1,8 @@
 from xbmcswift2 import Plugin
 
+from resources.lib import Client
+
+telkkarista = Client('telkkarista.com')
 
 plugin = Plugin()
 
