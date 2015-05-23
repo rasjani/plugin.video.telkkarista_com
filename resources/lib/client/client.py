@@ -41,6 +41,7 @@ class Client:
     self.clientVersion = "0.0.1"
     self.versionString = "%s/%s" % (self.clientName, self.clientVersion )
     self.User = User(self, plugin)
+    self.Streams = Streams(self, plugin)
     pass
 
   def setSessionId(self, id):

@@ -17,7 +17,7 @@ class User:
 
     response = json.loads(self._client.request('user/login',  {'password':password,'email':email }))
 
-    if response['code'] == 'login_ok':
+    if response['status'] == 'ok' and response['code'] == 'login_ok':
       self._client.setSessionId(response['payload'])
     else:
       self._plugin.log.debug("Missing error handling")
