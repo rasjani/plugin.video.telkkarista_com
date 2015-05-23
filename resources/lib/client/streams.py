@@ -1,5 +1,5 @@
 __author__ = 'rasjani'
-
+import json
 
 class Streams:
   def __init__(self, client, plugin):
@@ -11,7 +11,7 @@ class Streams:
     response = json.loads(self._client.request('streams/get'))
 
     if response['status'] == 'ok' and response['code'] == 'streams':
-    	return response['payload']
+      return response['payload']
     else:
       self._plugin.log.debug("Missing error handling")
-    	return []
+      return []

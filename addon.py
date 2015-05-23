@@ -9,7 +9,7 @@ telkkarista = Client('telkkarista.com', plugin)
 
 @plugin.route('/live/')
 def live():
-  return []
+  return telkkarista.LiveTVView()
 
 @plugin.route('/programs/')
 def programs():

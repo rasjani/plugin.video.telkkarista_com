@@ -1,6 +1,6 @@
 __author__ = 'rasjani'
 
-from .user import User 
+from .user import User
 from .streams import Streams
 from .epg import Epg
 from .vod import Vod
@@ -35,6 +35,7 @@ class Client:
     self._useProxy = plugin.get_setting('use_proxy',bool)
     self.apiEndPoint = 'http://api.%s' % host
     self.loginService = 'http://login.%s' % host
+    self.streamService = ''
     self.clientName = plugin.addon.getAddonInfo('id')
     # getAddonInfo version doesnt seem to work  ? returns "Unavailable"
     # self.clientVersion = plugin.addon.getAddonInfo('version')
@@ -42,16 +43,52 @@ class Client:
     self.versionString = "%s/%s" % (self.clientName, self.clientVersion )
     self.User = User(self, plugin)
     self.Streams = Streams(self, plugin)
+    self.Epg = Epg(self, plugin)
     pass
 
   def setSessionId(self, id):
-    print "GOT SESSION!!!!!!!!!", id
     self._sessionId = id
+
+
+  def LiveTVView(self):
+    menu = []
+    streamData = self.Streams.get()
+    currentlyRecord = self.Epg.current()
+
+    streamData = sorted(streamData, key=lambda k: k['streamOrder'])
+
+    for stream in streamData:
+      channelId = stream['name']
+      channelName = stream['visibleName']
+      plot = ''
+
+      try:
+        tmp = currentlyRecord[channelId][0]
+        plot  = tmp['title']['fi'] ## Config lang to use ?
+      exception Exception, e:
+        plot = ''
+
+      mediaUrl = 'http://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channel)
+      iconUrl = 'http://%s/%s/live/%s_small.jpg?%i' % (self.streamService, self._sessionId, channel, random.randint(0,2e9))
+      menu.appand({
+        'label': channel,
+        'thumbnail': iconUrl,
+        'icon': iconUrl,
+        'path': mediaUrl,
+        'info_type': 'video',
+        'is_playable': True,
+        'info': {
+          'plot': plot,
+          'plotoutline': plot
+        }
+      })
+
+    return menu
 
   def request(self, apiMethod, data=None, path=None):
     uri = path
     if not path:
-    	uri = "%s/%s/%s" % (self.apiEndPoint, self.apiVersion, apiMethod)
+      uri = "%s/%s/%s" % (self.apiEndPoint, self.apiVersion, apiMethod)
 
     conn = None
     if data != None:
