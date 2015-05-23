@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
+    <category label="30300">
+        <setting id="email" type="text" label="30301" default="" />
+        <setting id="password" type="text" label="30301" default="" />
+    </category>
+
     <category label="30100">
         <setting id="use_proxy" type="bool" label="30101" default="false" />
         <setting type="sep" />

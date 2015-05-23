@@ -15,4 +15,9 @@
 
   <string id="30200">Miscellaneous</string>
   <string id="30201">Debug Mode</string>
+
+  <string id="30300">Account</string>
+  <string id="30301">Email</string>
+  <string id="30302">Password</string>
+
 </strings>

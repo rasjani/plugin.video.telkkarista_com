@@ -12,7 +12,10 @@
   <string id="30102">Osoite</string>
   <string id="30103">Portti</string>
 
-
   <string id="30200">Sekalaiset</string>
   <string id="30201">Debug viestit</string>
+
+  <string id="30300">Käyttäjä</string>
+  <string id="30301">Sähköposti</string>
+  <string id="30302">Salasana</string>
 </strings>
