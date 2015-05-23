@@ -6,4 +6,13 @@
   <string id="30002">Programs</string>
   <string id="30003">Search</string>
   <string id="30004">Settings</string>
+
+  <string id="30100">Proxy Settings</string>
+  <string id="30101">Use Proxy</string>
+  <string id="30102">Host</string>
+  <string id="30103">Port</string>
+
+
+  <string id="30200">Miscellaneous</string>
+  <string id="30201">Debug Mode</string>
 </strings>

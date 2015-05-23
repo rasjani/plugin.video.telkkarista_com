@@ -6,4 +6,13 @@
   <string id="30002">Ohjelmat</string>
   <string id="30003">Haku</string>
   <string id="30004">Asetukset</string>
+
+  <string id="30100">Välimuisti</string>
+  <string id="30101">Välimuisti käytössä?</string>
+  <string id="30102">Osoite</string>
+  <string id="30103">Portti</string>
+
+
+  <string id="30200">Sekalaiset</string>
+  <string id="30201">Debug viestit</string>
 </strings>

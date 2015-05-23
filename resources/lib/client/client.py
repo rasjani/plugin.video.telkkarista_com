@@ -5,6 +5,10 @@ from .streams import Streams
 from .epg import Epg
 from .vod import Vod
 
+
+import requests
+
+
 class Client:
 
   apiEndPoint = ''
@@ -25,3 +29,14 @@ class Client:
     pass
 
 
+  def request(self, apiMethod, data, path):
+    reqMethod = 'GET'
+    if data:
+    	reqMethod = 'POST'
+
+
+    uri = path
+    if not path:
+    	uri = "%s/%s/%s" % (self.apiEndPoint, self.apiVersion, apiMethod)
+
+    print uri
