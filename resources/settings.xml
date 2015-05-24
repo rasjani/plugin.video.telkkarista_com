@@ -2,7 +2,7 @@
 <settings>
     <category label="30300">
         <setting id="email" type="text" label="30301" default="" />
-        <setting id="password" type="text" label="30301" default="" />
+        <setting id="password" type="text" label="30302" default="" />
     </category>
 
     <category label="30100">
