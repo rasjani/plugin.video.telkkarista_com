@@ -4,10 +4,13 @@ from .user import User
 from .streams import Streams
 from .epg import Epg
 from .vod import Vod
+from .cache import Cache
 
 
 import urllib2
 import json
+import random
+
 
 class Client:
 
@@ -17,6 +20,7 @@ class Client:
   clientVersion = None
   versionString = None
   apiVersion = '1'
+  streamService = 'proxy1.telkkarista.com'
 
   _user = {}
   _streams = {}
@@ -35,7 +39,6 @@ class Client:
     self._useProxy = plugin.get_setting('use_proxy',bool)
     self.apiEndPoint = 'http://api.%s' % host
     self.loginService = 'http://login.%s' % host
-    self.streamService = ''
     self.clientName = plugin.addon.getAddonInfo('id')
     # getAddonInfo version doesnt seem to work  ? returns "Unavailable"
     # self.clientVersion = plugin.addon.getAddonInfo('version')
@@ -44,6 +47,9 @@ class Client:
     self.User = User(self, plugin)
     self.Streams = Streams(self, plugin)
     self.Epg = Epg(self, plugin)
+    self.Cache = Cache(self, plugin)
+
+    self.Cache.get()
     pass
 
   def setSessionId(self, id):
@@ -65,13 +71,13 @@ class Client:
       try:
         tmp = currentlyRecord[channelId][0]
         plot  = tmp['title']['fi'] ## Config lang to use ?
-      exception Exception, e:
+      except Exception, e:
         plot = ''
 
-      mediaUrl = 'http://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channel)
-      iconUrl = 'http://%s/%s/live/%s_small.jpg?%i' % (self.streamService, self._sessionId, channel, random.randint(0,2e9))
-      menu.appand({
-        'label': channel,
+      mediaUrl = 'http://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channelId)
+      iconUrl = 'http://%s/%s/live/%s_small.jpg?%i' % (self.streamService, self._sessionId, channelId, random.randint(0,2e9))
+      menu.append({
+        'label': channelName,
         'thumbnail': iconUrl,
         'icon': iconUrl,
         'path': mediaUrl,
