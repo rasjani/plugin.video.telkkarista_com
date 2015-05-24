@@ -34,8 +34,9 @@ class Client:
   _sessionId = None
   _xlibversion = 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)'
 
-  def __init__(self, host, plugin):
+  def __init__(self, host, plugin, xbmcgui):
     self._plugin = plugin
+    self._gui = xbmcgui
     self._useProxy = plugin.get_setting('use_proxy',bool)
     self.apiEndPoint = 'http://api.%s' % host
     self.loginService = 'http://login.%s' % host
@@ -48,12 +49,22 @@ class Client:
     self.Streams = Streams(self, plugin)
     self.Epg = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
-
+    self.User.login()
     self.Cache.get()
 
   def setSessionId(self, id):
     self._sessionId = id
 
+
+  def cacheHostDialog(self):
+    dialog = self._gui.Dialog()
+    hostList = self.Cache.get()
+    ret = dialog.select(
+        self._plugin.get_string(30305),
+        [u['host'] for u in hostList]
+    )
+    if ret >= 0:
+      self._plugin.set_setting('cachehost', hostList[ret]['host'])
 
   def LiveTVView(self):
     menu = []

@@ -1,11 +1,15 @@
-from xbmcswift2 import Plugin
+from xbmcswift2 import Plugin, xbmcgui, xbmc
 
 from resources.lib import Client
 
 plugin = Plugin()
 
-telkkarista = Client('telkkarista.com', plugin)
+telkkarista = Client('telkkarista.com', plugin, xbmcgui)
 
+
+@plugin.route('/cachehost')
+def cachehost():
+  telkkarista.cacheHostDialog()
 
 @plugin.route('/live/')
 def live():

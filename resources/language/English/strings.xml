@@ -12,12 +12,14 @@
   <string id="30102">Host</string>
   <string id="30103">Port</string>
 
-
   <string id="30200">Miscellaneous</string>
   <string id="30201">Debug Mode</string>
 
   <string id="30300">Account</string>
   <string id="30301">Email</string>
   <string id="30302">Password</string>
+  <string id="30303">Current</string>
+  <string id="30304">Pick the nearest</string>
+  <string id="30305">Stream Host</string>
 
 </strings>

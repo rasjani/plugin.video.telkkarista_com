@@ -3,6 +3,9 @@
     <category label="30300">
         <setting id="email" type="text" label="30301" default="" />
         <setting id="password" type="text" label="30302" default="" />
+        <setting type="lsep" label="30305" />
+        <setting id="cachehost" type="text" label="30303" default="undefined" enable="False" />
+        <setting type="action" label="30304" action="RunPlugin(plugin://plugin.video.telkkarista/cachehost/)"/>
     </category>
 
     <category label="30100">
