@@ -22,6 +22,7 @@ class Client:
   apiVersion = '1'
   streamService = 'proxy1.telkkarista.com'
 
+  debug = False
   _user = {}
   _streams = {}
   _epg = {}
@@ -38,6 +39,11 @@ class Client:
     self._plugin = plugin
     self._gui = xbmcgui
     self._useProxy = plugin.get_setting('use_proxy',bool)
+    # self.debug = plugin.get_setting('debug',bool)
+    if self.debug:
+      self._debugLevel = 1
+    else:
+      self._debugLevel = 0
     self.apiEndPoint = 'http://api.%s' % host
     self.loginService = 'http://login.%s' % host
     self.clientName = plugin.addon.getAddonInfo('id')
@@ -49,8 +55,6 @@ class Client:
     self.Streams = Streams(self, plugin)
     self.Epg = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
-    self.User.login()
-    self.Cache.get()
 
   def setSessionId(self, id):
     self._sessionId = id
@@ -126,11 +130,11 @@ class Client:
         'http': 'http://' + plugin.get_setting('proxy_host',unicode) + ":" + plugin.get_setting('proxy_port', unicode),
         'https': 'http://' + plugin.get_setting('proxy_host', unicode) + ":" + plugin.get_setting('proxy_port', unicode),
       }
-      opener = urllib2.build_opener(urllib2.ProxyHandler(proxies, debuglevel=1))
+      opener = urllib2.build_opener(urllib2.ProxyHandler(proxies, debuglevel=self._debugLevel))
       urllib2.install_opener(opener)
       conn = opener.open(req)
     else:
-      opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=1))
+      opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=self._debugLevel))
       urllib2.install_opener(opener)
       conn = opener.open(req)
 
