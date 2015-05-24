@@ -20,10 +20,9 @@ class Client:
   clientVersion = None
   versionString = None
   apiVersion = '1'
-  streamService = 'proxy1.telkkarista.com'
-
+  streamService = ''
   debug = False
-  _user = {}
+
   _streams = {}
   _epg = {}
   _vod = {}
@@ -31,8 +30,8 @@ class Client:
   _settings = {}
 
   _plugin = None
-
   _sessionId = None
+
   _xlibversion = 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)'
 
   def __init__(self, host, plugin, xbmcgui):
@@ -56,23 +55,60 @@ class Client:
     self.Epg = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
 
-  def setSessionId(self, id):
-    self._sessionId = id
+    self._sessionId = plugin.get_setting('sessionId', unicode)
+    self.streamService = plugin.get_setting('cachehost', unicode)
 
+    self.handleLogin()
+
+  def checkCacheServer(self):
+    hostList = self._cacheServers['payload']
+    if not self.streamService in [u['host'] for u in hostList if u['status']=='up' ]:
+      return False
+    else:
+      return True
+
+
+  def populateCache(self, invalidate = False):
+    self._streams = self._plugin.get_storage('streams')
+    self._cacheServers = self._plugin.get_storage('cacheServers')
+    if len(self._streams.items())==0 or invalidate == True:
+      self._streams.update( {"payload": self.Streams.get() })
+      self._streams.sync()
+
+    if len(self._cacheServers.items())==0 or invalidate == True:
+      self._cacheServers.update({"payload": self.Cache.get() })
+      self._cacheServers.sync()
+
+
+  def handleLogin(self):
+    invalidateCache = False
+    if self._sessionId != None:
+      if self.User.checkSession() == False:
+        invalidateCache = True
+        self.User.login()
+    else:
+      self.User.login()
+      invalidateCache = True
+
+    self.populateCache(invalidateCache)
+
+    if not self.checkCacheServer():
+      self.cacheHostDialog()
+
+  def setSessionId(self, id):
+    self._plugin.set_setting("sessionId", id)
+    self._sessionId = id
 
   def cacheHostDialog(self):
     dialog = self._gui.Dialog()
-    hostList = self.Cache.get()
-    ret = dialog.select(
-        self._plugin.get_string(30305),
-        [u['host'] for u in hostList]
-    )
-    if ret >= 0:
+    hostList = self._cacheServers['payload']
+    ret = dialog.select( self._plugin.get_string(30305), [u['host'] for u in hostList if u['status']=='up' ])
+    if isinstance( ret, ( int, long ) ) and ret >= 0: ## cli xbmc returns non-int
       self._plugin.set_setting('cachehost', hostList[ret]['host'])
 
   def LiveTVView(self):
     menu = []
-    streamData = self.Streams.get()
+    streamData = self._streams['payload']
     currentlyRecord = self.Epg.current()
 
     streamData = sorted(streamData, key=lambda k: k['streamOrder'])
@@ -98,8 +134,8 @@ class Client:
         'info_type': 'video',
         'is_playable': True,
         'info': {
-          'plot': plot,
-          'plotoutline': plot
+          'Plot': plot,
+          'PlotOutline': plot
         }
       })
 
