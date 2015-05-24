@@ -18,3 +18,27 @@ class User:
       self._client.setSessionId(response['payload'])
     else:
       self._plugin.log.debug("Missing error handling")
+
+  def checkSession(self):
+    response = json.loads(self._client.request('user/checkSession'))
+    if response['status'] == 'ok' and response['code'] == 'checkSession':
+    	return True
+    else:
+    	return False
+
+  def info(self):
+    response = json.loads(self._client.request('user/info'))
+    if response['status'] == 'ok' and response['code'] == 'info':
+    	return response['payload']
+    else:
+    	return None
+
+  def settings(self):
+    response = json.loads(self._client.request('user/settings'))
+    if response['status'] == 'ok' and response['code'] == 'settings':
+    	return response['payload']
+    else:
+    	return None
+
+
+
