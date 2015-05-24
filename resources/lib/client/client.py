@@ -50,7 +50,6 @@ class Client:
     self.Cache = Cache(self, plugin)
 
     self.Cache.get()
-    pass
 
   def setSessionId(self, id):
     self._sessionId = id

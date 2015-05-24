@@ -8,9 +8,6 @@ class User:
     self._client = client
     self._plugin = plugin
 
-    self.login()
-    pass
-
   def login(self):
     email = self._plugin.get_setting('email', unicode)
     password = self._plugin.get_setting('password', unicode);

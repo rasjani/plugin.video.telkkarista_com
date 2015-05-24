@@ -5,7 +5,6 @@ class Streams:
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    pass
 
   def get(self):
     response = json.loads(self._client.request('streams/get'))

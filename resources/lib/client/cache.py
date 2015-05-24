@@ -5,7 +5,6 @@ class Cache:
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    pass
 
   def get(self):
     response = self._client.request('cache/get')

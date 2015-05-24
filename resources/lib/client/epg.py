@@ -5,7 +5,6 @@ class Epg:
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    pass
 
   def current(self):
     response = self._client.request('epg/current')
