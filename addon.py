@@ -29,6 +29,7 @@ def movies():
 
 @plugin.route('/')
 def index():
+    print "QUALITY", plugin.get_setting('streamQuality', int)
     indexMenu = [
         {'label': plugin.get_string(30001), 'path': plugin.url_for('live'),     'is_playable': False },
         {'label': plugin.get_string(30002), 'path': plugin.url_for('programs'), 'is_playable': False },
