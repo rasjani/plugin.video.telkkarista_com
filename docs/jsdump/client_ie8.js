@@ -1,12 +1,23 @@
 var libStreamingClient = function(host, debug){
   var debug = debug?true:false;
 
+  // if we are running the client on correct domain, disable debugging
+  if(window.location.host.indexOf(host) != -1) debug = false;
+
+  // Some browsers apparently dont have console?!?
+  if(debug) {
+    if(!console) console = {};
+    if(!console.log) {
+      console.log = function() {};
+    }
+  }
+
   /*
    * This is our client object where all other functions are loaded to
    */
   var client = {
-    apiEndpoint: 'http://api.' + host,
-    loginService: 'http://login.' + host,
+    apiEndpoint: window.location.protocol + '//api.' + host,
+    loginService: window.location.protocol + '//login.' + host,
     versionString: 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)',
     apiVersion: '1',
     storage: null,
@@ -24,15 +35,22 @@ var libStreamingClient = function(host, debug){
   // Since IE8 & IE9 does not support CORS we need to throw an error so we can do tricks
   if(navigator.appName.indexOf("Internet Explorer")!=-1) {
     //if(navigator.appVersion.indexOf("MSIE 1") == -1) { // IE10+ are ok
-    // Oh fuck me, who was I kidding no IE is never ok!
-      if(window.location.host.indexOf(host) == -1) {
-        if(!confirm('You are loading this script from untrusted location, do you want to continue?')) {
-          throw new Error('Untrusted');
-        }
-      }
-      client.suckyBrowser = true;
-      client.apiEndpoint = window.location.protocol + '//' + window.location.host + '/corsproxy';
+    // Who was I kidding, IE is never OK, back to the proxy for "modern" IE browsers as well..
+      sendToDogHouse();
     //}
+  } else if(navigator.appName.indexOf("Netscape") != -1 && navigator.userAgent.indexOf('Trident') != -1) {
+    // IE11 is trying to be sneaky.. Still send them to doghouse since cors, wtf? get it right!
+    sendToDogHouse();
+  }
+
+  function sendToDogHouse() {
+    if(window.location.host.indexOf(host) == -1) {
+      if(!confirm('You are loading this script from untrusted location, do you want to continue?')) {
+        throw new Error('Untrusted');
+      }
+    }
+    client.suckyBrowser = true;
+    client.apiEndpoint = window.location.protocol + '//' + window.location.host + '/corsproxy';
   }
 
   /*
@@ -416,8 +434,8 @@ var libStreamingClient = function(host, debug){
         delete client.user.session;
         client.emit('loginRequired');
       });
-    if(client.suckyBrowser) {
-      var testFile = 'http://' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
+    //if(client.suckyBrowser) {
+      var testFile = window.location.protocol + '//' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
 
       var _tmp = new Image();
 
@@ -430,7 +448,7 @@ var libStreamingClient = function(host, debug){
       }
       _tmp.src = testFile;
 
-    } else {
+    /*} else {
       request(false, false, 'http://' + client.cacheServers[0].host + '/check')
         .then(function() {
           // all ok
@@ -439,7 +457,7 @@ var libStreamingClient = function(host, debug){
           if(debug) console.log('Cache server check fail!');
           client.cacheServers.splice(0,1);
         });
-    }
+    }*/
   }
 
   /*
@@ -611,6 +629,16 @@ var libStreamingClient = function(host, debug){
               return (server1.speedtest.mbit > server2.speedtest.mbit)?-1:1;
             });
 
+            if(testedServers.length > 2) {
+              // If speedtest between top 2 servers are withing 40% of eachother and 2nd server is over 6mbit, see which one has lowest latency
+              var diff = (testedServers[0].speedtest.mbit / testedServers[1].speedtest.mbit);
+              if(testedServers[0].speedtest.latency > testedServers[1].speedtest.latency && (diff > 0.6 || diff < 1.6) && testedServers[1].speedtest.mbit > 6) {
+                var _tmp = testedServers[0];
+                testedServers[0] = testedServers[1];
+                testedServers[1] = _tmp;
+              }
+            }
+
             client.cacheServers = testedServers;
 
             client.emit('speedtestDone', testedServers);
@@ -625,7 +653,6 @@ var libStreamingClient = function(host, debug){
             client.user.setSetting('speedtests', speedtests)
                 .then(function() {
                   client.emit('ready');
-                  if(debug) console.log(speedtests);
                 })
                 .error(function() {
                   if(debug) console.log('Setting setting failed!');
@@ -682,47 +709,84 @@ var libStreamingClient = function(host, debug){
   client.cache.speedtest = function(server) {
     var defer = q.defer();
     var startTime = new Date().getTime();
+    var latencyFile = window.location.protocol + '//' + server.host + '/check.jpg?' + new Date().getTime();
 
-    if(client.suckyBrowser) {
-      var testFile = 'http://' + server.host + '/speedtest.jpg?'+new Date().getTime();
+//    if(client.suckyBrowser) {
+      var testFile = window.location.protocol + '//' + server.host + '/speedtest.jpg?' + new Date().getTime();
       var bytes = 719431;
 
       var _tmp = new Image();
 
       _tmp.onload = function() {
-        console.log('loaded');
         var duration = new Date().getTime() - startTime;
-        defer.resolve({
-          mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-          length: duration/1000
-        });
+        var latencyStart = new Date().getTime();
 
+        var _tmp = new Image();
+
+        _tmp.onload = function() {
+          defer.resolve({
+            mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+            length: duration/1000,
+            latency: (new Date().getTime() - latencyStart)
+          });
+        }
+
+        _tmp.onerror = function() {
+          defer.resolve({
+            mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+            length: duration/1000,
+            latency: -1
+          });
+        }
+
+        _tmp.src = latencyFile;
       }
       _tmp.onerror = function() {
-        defer.reject();
+        defer.resolve({
+          mbit: 0,
+          length: 0,
+          latency: -1
+        });
       }
       _tmp.src = testFile;
 
-    } else {
+/*    } else {
       var testFile = 'http://' + server.host + '/speedtest_1mb.bin';
       var bytes = 1024 * 1024;
 
       request(false, false, testFile)
         .then(function() {
           var duration = new Date().getTime() - startTime;
-          defer.resolve({
-            mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-            length: duration/1000
-          });
+          var latencyStart = new Date().getTime();
+
+          var _tmp = new Image();
+
+          _tmp.onload = function() {
+            defer.resolve({
+              mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+              length: duration/1000,
+              latency: (new Date().getTime() - latencyStart)
+            });
+          }
+
+          _tmp.onerror = function() {
+            defer.resolve({
+              mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+              length: duration/1000,
+              latency: -1
+            });
+          }
+
+          _tmp.src = latencyFile;
         })
         .error(defer.reject);
-    }
+    }*/
     return defer.promise;
   }
 
 
   client.cache.getUrl = function(path, cacheServer) {
-    var url = 'http://' + (cacheServer?cacheServer:client.cacheServers[0].host) + '/' + client.user.session + path
+    var url = window.location.protocol + '//' + (cacheServer?cacheServer:client.cacheServers[0].host) + '/' + client.user.session + path
     return url;
   }
 
@@ -754,4 +818,3 @@ var libStreamingClient = function(host, debug){
 
 // Polyfill for IE8/IE9 support
 if(!Array.prototype.forEach){Array.prototype.forEach=function(a,b){var T,k;if(this==null){throw new TypeError(' this is null or not defined');}var O=Object(this);var c=O.length>>>0;if(typeof a!=="function"){throw new TypeError(a+' is not a function');}if(arguments.length>1){T=b}k=0;while(k<c){var d;if(k in O){d=O[k];a.call(T,d,k,O)}k++}}}if(!window.JSON){window.JSON={parse:function(a){return eval('('+a+')')},stringify:(function(){var toString=Object.prototype.toString;var d=Array.isArray||function(a){return toString.call(a)==='[object Array]'};var e={'"':'\\"','\\':'\\\\','\b':'\\b','\f':'\\f','\n':'\\n','\r':'\\r','\t':'\\t'};var f=function(m){return e[m]||'\\u'+(m.charCodeAt(0)+0x10000).toString(16).substr(1)};var g=/[\\"\u0000-\u001F\u2028\u2029]/g;return function stringify(a){if(a==null){return'null'}else if(typeof a==='number'){return isFinite(a)?a.toString():'null'}else if(typeof a==='boolean'){return a.toString()}else if(typeof a==='object'){if(typeof a.toJSON==='function'){return stringify(a.toJSON())}else if(d(a)){var b='[';for(var i=0;i<a.length;i++)b+=(i?', ':'')+stringify(a[i]);return b+']'}else if(toString.call(a)==='[object Object]'){var c=[];for(var k in a){if(a.hasOwnProperty(k))c.push(stringify(k)+': '+stringify(a[k]))}return'{'+c.join(', ')+'}'}}return'"'+a.toString().replace(g,f)+'"'}})()}}if(!Object.keys){Object.keys=(function(){'use strict';var hasOwnProperty=Object.prototype.hasOwnProperty,hasDontEnumBug=!({toString:null}).propertyIsEnumerable('toString'),dontEnums=['toString','toLocaleString','valueOf','hasOwnProperty','isPrototypeOf','propertyIsEnumerable','constructor'],dontEnumsLength=dontEnums.length;return function(a){if(typeof a!=='object'&&(typeof a!=='function'||a===null)){throw new TypeError('Object.keys called on non-object');}var b=[],prop,i;for(prop in a){if(hasOwnProperty.call(a,prop)){b.push(prop)}}if(hasDontEnumBug){for(i=0;i<dontEnumsLength;i++){if(hasOwnProperty.call(a,dontEnums[i])){b.push(dontEnums[i])}}}return b}}())}(function(){var D=new Date('2011-06-02T09:34:29+02:00');if(!D||+D!==1307000069000){Date.fromISO=function(s){var a,tz,rx=/^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/,p=rx.exec(s)||[];if(p[1]){a=p[1].split(/\D/);for(var i=0,L=a.length;i<L;i++){a[i]=parseInt(a[i],10)||0};a[1]-=1;a=new Date(Date.UTC.apply(Date,a));if(!a.getDate())return NaN;if(p[5]){tz=(parseInt(p[5],10)*60);if(p[6])tz+=parseInt(p[6],10);if(p[4]=='+')tz*=-1;if(tz)a.setUTCMinutes(a.getUTCMinutes()+tz)}return a}return NaN}}else{Date.fromISO=function(s){return new Date(s)}}})();if(!Array.prototype.indexOf){Array.prototype.indexOf=function(a,b){var k;if(this==null){throw new TypeError('"this" is null or not defined');}var O=Object(this);var c=O.length>>>0;if(c===0){return-1}var n=+b||0;if(Math.abs(n)===Infinity){n=0}if(n>=c){return-1}k=Math.max(n>=0?n:c-Math.abs(n),0);while(k<c){if(k in O&&O[k]===a){return k}k++}return-1}}if(!Date.prototype.toISOString){(function(){function pad(a){if(a<10){return'0'+a}return a}Date.prototype.toISOString=function(){return this.getUTCFullYear()+'-'+pad(this.getUTCMonth()+1)+'-'+pad(this.getUTCDate())+'T'+pad(this.getUTCHours())+':'+pad(this.getUTCMinutes())+':'+pad(this.getUTCSeconds())+'.'+(this.getUTCMilliseconds()/1000).toFixed(3).slice(2,5)+'Z'}}())}
-
