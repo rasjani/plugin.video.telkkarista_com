@@ -23,11 +23,16 @@ def programs():
 def search():
   return []
 
+@plugin.route('/movies/')
+def movies():
+  return telkkarista.ui.MoviesView()
+
 @plugin.route('/')
 def index():
     indexMenu = [
         {'label': plugin.get_string(30001), 'path': plugin.url_for('live'),     'is_playable': False },
         {'label': plugin.get_string(30002), 'path': plugin.url_for('programs'), 'is_playable': False },
+        {'label': plugin.get_string(30005), 'path': plugin.url_for('movies'),   'is_playable': False },
         {'label': plugin.get_string(30003), 'path': plugin.url_for('search'),   'is_playable': False },
     ]
 

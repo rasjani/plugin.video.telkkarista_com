@@ -48,3 +48,31 @@ class Ui:
       })
 
     return menu
+
+
+  def MoviesView(self):
+    menu = []
+    tmp = self._client.Epg.searchMovies()
+    for movie in tmp:
+      if 'record' in movie and movie['record'] == 'storage':
+        movieInfo = self._client.Epg.info(movie['pid'])
+        if len(movieInfo)>0:
+          mediaUrl = 'http://%s/%s/vod%smaster.m3u8' % (self._client.streamService, self._client._sessionId, movieInfo['recordpath'])
+          plot = ''
+          try:
+            plot = movieInfo['sub-title']['fi']
+          except:
+            pass
+
+          menu.append({
+            'label': movieInfo['title']['fi'],
+            'path': mediaUrl,
+            'info_type': 'video',
+            'is_playable': True,
+            'info': {
+              'Channel': movieInfo['channel'],
+              'Plot': movieInfo['title']['fi'],
+              'PlotOutline': plot
+            }
+          })
+    return menu
