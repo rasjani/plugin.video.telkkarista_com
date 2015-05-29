@@ -9,11 +9,11 @@ telkkarista = Client('telkkarista.com', plugin, xbmcgui)
 
 @plugin.route('/cachehost')
 def cachehost():
-  telkkarista.cacheHostDialog()
+  telkkarista.ui.cacheHostDialog()
 
 @plugin.route('/live/')
 def live():
-  return telkkarista.LiveTVView()
+  return telkkarista.ui.LiveTVView()
 
 @plugin.route('/programs/')
 def programs():

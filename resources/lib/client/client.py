@@ -5,11 +5,11 @@ from .streams import Streams
 from .epg import Epg
 from .vod import Vod
 from .cache import Cache
+from .ui import Ui
 
 
 import urllib2
 import json
-import random
 
 
 class Client:
@@ -36,7 +36,6 @@ class Client:
 
   def __init__(self, host, plugin, xbmcgui):
     self._plugin = plugin
-    self._gui = xbmcgui
     self._useProxy = plugin.get_setting('use_proxy',bool)
     # self.debug = plugin.get_setting('debug',bool)
     if self.debug:
@@ -54,6 +53,8 @@ class Client:
     self.Streams = Streams(self, plugin)
     self.Epg = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
+
+    self.ui = Ui(plugin, xbmcgui, self)
 
     self._sessionId = plugin.get_setting('sessionId', unicode)
     self.streamService = plugin.get_setting('cachehost', unicode)
@@ -93,53 +94,11 @@ class Client:
     self.populateCache(invalidateCache)
 
     if not self.checkCacheServer():
-      self.cacheHostDialog()
+      self.ui.cacheHostDialog()
 
   def setSessionId(self, id):
     self._plugin.set_setting("sessionId", id)
     self._sessionId = id
-
-  def cacheHostDialog(self):
-    dialog = self._gui.Dialog()
-    hostList = self._cacheServers['payload']
-    ret = dialog.select( self._plugin.get_string(30305), [u['host'] for u in hostList if u['status']=='up' ])
-    if isinstance( ret, ( int, long ) ) and ret >= 0: ## cli xbmc returns non-int
-      self._plugin.set_setting('cachehost', hostList[ret]['host'])
-
-  def LiveTVView(self):
-    menu = []
-    streamData = self._streams['payload']
-    currentlyRecord = self.Epg.current()
-
-    streamData = sorted(streamData, key=lambda k: k['streamOrder'])
-
-    for stream in streamData:
-      channelId = stream['name']
-      channelName = stream['visibleName']
-      plot = ''
-
-      try:
-        tmp = currentlyRecord[channelId][0]
-        plot  = tmp['title']['fi'] ## Config lang to use ?
-      except Exception, e:
-        plot = ''
-
-      mediaUrl = 'http://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channelId)
-      iconUrl = 'http://%s/%s/live/%s_small.jpg?%i' % (self.streamService, self._sessionId, channelId, random.randint(0,2e9))
-      menu.append({
-        'label': channelName,
-        'thumbnail': iconUrl,
-        'icon': iconUrl,
-        'path': mediaUrl,
-        'info_type': 'video',
-        'is_playable': True,
-        'info': {
-          'Plot': plot,
-          'PlotOutline': plot
-        }
-      })
-
-    return menu
 
   def request(self, apiMethod, data=None, path=None):
     uri = path
