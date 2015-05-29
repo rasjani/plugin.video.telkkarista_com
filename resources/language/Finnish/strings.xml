@@ -23,4 +23,13 @@
   <string id="30304">Valitse lähin</string>
   <string id="30305">Stream host</string>
 
+  <string id="30400">Matalin</string>
+  <string id="30401">Matala</string>
+  <string id="30402">Keskitasoa</string>
+  <string id="30403">Korkea</string>
+  <string id="30404">Korkein</string>
+  <string id="30405">720p</string>
+  <string id="30406">1080p</string>
+  <string id="30406">Automaattinen valinta</string>
+
 </strings>

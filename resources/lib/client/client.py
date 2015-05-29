@@ -23,6 +23,18 @@ class Client:
   streamService = ''
   debug = False
 
+
+  quality = {
+      0: 'lowest',
+      1: 'low',
+      2: 'med',
+      3: 'hi',
+      4: 'highest',
+      5: '720p',
+      6: '1080p',
+      7: 'master'
+  }
+
   _streams = {}
   _epg = {}
   _vod = {}
@@ -42,8 +54,8 @@ class Client:
       self._debugLevel = 1
     else:
       self._debugLevel = 0
-    self.apiEndPoint = 'http://api.%s' % host
-    self.loginService = 'http://login.%s' % host
+    self.apiEndPoint = 'https://api.%s' % host
+    self.loginService = 'https://login.%s' % host
     self.clientName = plugin.addon.getAddonInfo('id')
     # getAddonInfo version doesnt seem to work  ? returns "Unavailable"
     # self.clientVersion = plugin.addon.getAddonInfo('version')

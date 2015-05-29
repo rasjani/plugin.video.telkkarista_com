@@ -32,8 +32,14 @@ class Ui:
       except Exception, e:
         plot = ''
 
-      mediaUrl = 'http://%s/%s/live/%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId) ## TODO: fix later
-      iconUrl = 'http://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
+      quality = self._plugin.get_setting('streamQuality', int)
+      mediaUrl = ''
+      if quality == 6: # autodetect
+        mediaUrl = 'https://%s/%s/live/%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId) ## TODO: fix later
+      else:
+        mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId, self._client.quality[quality]) ## TODO: fix later
+
+      iconUrl = 'https://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
       menu.append({
         'label': channelName,
         'thumbnail': iconUrl,
@@ -57,7 +63,8 @@ class Ui:
       if 'record' in movie and movie['record'] == 'storage':
         movieInfo = self._client.Epg.info(movie['pid'])
         if len(movieInfo)>0:
-          mediaUrl = 'http://%s/%s/vod%smaster.m3u8' % (self._client.streamService, self._client._sessionId, movieInfo['recordpath'])
+          quality = self._plugin.get_setting('streamQuality', int)
+          mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self._client.streamService, self._client._sessionId, movieInfo['recordpath'], self._client.quality[quality])
           plot = ''
           try:
             plot = movieInfo['sub-title']['fi']

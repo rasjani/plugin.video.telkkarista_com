@@ -22,5 +22,16 @@
   <string id="30303">Current</string>
   <string id="30304">Pick the nearest</string>
   <string id="30305">Stream Host</string>
+  <string id="30306">Stream Quality</string>
+
+  <string id="30400">Lowest</string>
+  <string id="30401">Low</string>
+  <string id="30402">Medium</string>
+  <string id="30403">High</string>
+  <string id="30404">Highest</string>
+  <string id="30405">720p</string>
+  <string id="30406">1080p</string>
+  <string id="30406">Auto-detect</string>
+
 
 </strings>
