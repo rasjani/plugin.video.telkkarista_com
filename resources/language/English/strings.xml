@@ -33,5 +33,9 @@
   <string id="30406">1080p</string>
   <string id="30406">Auto-detect</string>
 
+  <string id="30500">Today</string>
+  <string id="30501">Yesterday</string>
+  <string id="30502">This Week</string>
+  <string id="30503">All</string>
 
 </strings>

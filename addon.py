@@ -15,9 +15,22 @@ def cachehost():
 def live():
   return telkkarista.ui.LiveTVView()
 
-@plugin.route('/programs/')
-def programs():
-  return []
+@plugin.route('/programs/<chanid>/<timescope>', name='programs_showprogramlist' )
+@plugin.route('/programs/<chanid>', name='programs_showchannellist')
+@plugin.route('/programs', name='programs')
+def programs(chanid = None, timescope = None):
+  menu = []
+
+  if chanid == None and timescope == None:
+    menu = telkkarista.ui.ProgramsChannelList()
+  elif chanid != None and timescope == None:
+    menu = telkkarista.ui.TimeScopeSelection(chanid)
+  else:
+    menu = telkkarista.ui.ProgramSelection(chanid, timescope)
+
+  return menu
+
+
 
 @plugin.route('/search/')
 def search():
@@ -29,15 +42,7 @@ def movies():
 
 @plugin.route('/')
 def index():
-    print "QUALITY", plugin.get_setting('streamQuality', int)
-    indexMenu = [
-        {'label': plugin.get_string(30001), 'path': plugin.url_for('live'),     'is_playable': False },
-        {'label': plugin.get_string(30002), 'path': plugin.url_for('programs'), 'is_playable': False },
-        {'label': plugin.get_string(30005), 'path': plugin.url_for('movies'),   'is_playable': False },
-        {'label': plugin.get_string(30003), 'path': plugin.url_for('search'),   'is_playable': False },
-    ]
-
-    return indexMenu
+    return telkkarista.ui.MainMenu()
 
 
 if __name__ == '__main__':
