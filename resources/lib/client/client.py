@@ -10,6 +10,7 @@ from .ui import Ui
 
 import urllib2
 import json
+import datetime,dateutil.parser, dateutil.tz
 
 
 class Client:
@@ -80,6 +81,50 @@ class Client:
     else:
       return True
 
+  def pidInfo(self, item):
+      if 'record' in item and item ['record'] == 'storage':
+        programInfo = self._client.Epg.info(['pid'])
+        if len(programInfo)>0:
+          quality = self._plugin.get_setting('streamQuality', int)
+          mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self._client.streamService, self._client._sessionId, programInfo['recordpath'], self._client.quality[quality])
+          plot = ''
+          try:
+            plot = programInfo['sub-title']['fi']
+          except:
+            pass
+
+          return {
+            'label': programInfo['title']['fi'],
+            'path': mediaUrl,
+            'info_type': 'video',
+            'is_playable': True,
+            'info': {
+              'Channel': programInfo['channel'],
+              'Plot': programInfo['title']['fi'],
+              'PlotOutline': plot
+            }
+          }
+
+  def generateTimeRange(self, timeScope):
+    currentTime = datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+    timeScope = int(timeScope)
+    if timeScope == 0:
+      toTime = currentTime
+      fromTime = currentTime - datetime.timedelta(days=1)
+    elif timeScope == 1:
+      toTime = currentTime - datetime.timedelta(days=2)
+      fromTime = toTime - datetime.timedelta(days=1)
+    elif timeScope == 2:
+      toTime = currentTime
+      fromTime = currentTime - datetime.timedelta(days=7)
+    elif timeScope == 4:
+      toTime = currentTime
+      fromTime = currentTime - datetime.timedelta(days=14)
+    else:
+      toTime = currentTime
+      fromTime = currentTime - datetime.timedelta(days=1)
+
+    return [fromTime.isoformat(), toTime.isoformat()]
 
   def populateCache(self, invalidate = False):
     self._streams = self._plugin.get_storage('streams')

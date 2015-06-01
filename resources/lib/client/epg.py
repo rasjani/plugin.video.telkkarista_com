@@ -38,7 +38,6 @@ class Epg:
 
   def range(self, data):
     response = self._client.request('epg/range', data)
-    print response
     response = json.loads(response)
     if response['status'] == 'ok' and response['code'] == 'range':
       return response['payload']

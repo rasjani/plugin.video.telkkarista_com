@@ -1,6 +1,5 @@
 __author__ = "rasjani"
 import random
-import datetime,dateutil.parser, dateutil.tz
 import json
 
 class Ui:
@@ -9,27 +8,6 @@ class Ui:
     self._gui = xbmcgui
     self._client = client
 
-
-  def generateTimeRange(self, timeScope):
-    currentTime = datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
-    timeScope = int(timeScope)
-    if timeScope == 0:
-      toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=1)
-    elif timeScope == 1:
-      toTime = currentTime - datetime.timedelta(days=2)
-      fromTime = toTime - datetime.timedelta(days=1)
-    elif timeScope == 2:
-      toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=7)
-    elif timeScope == 4:
-      toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=14)
-    else:
-      toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=1)
-
-    return [fromTime.isoformat(), toTime.isoformat()]
 
   def ProgramsChannelList(self):
     menu = []
@@ -53,33 +31,14 @@ class Ui:
     ]
 
   def ProgramSelection(self, chanid, timescope):
-    timeRanges = self.generateTimeRange(timescope)
+    timeRanges = self._client.generateTimeRange(timescope)
     menu = []
     tmp = self._client.Epg.range({"from": timeRanges[0], "to": timeRanges[1], "streams": [chanid] } )
 
     for program in tmp[chanid]:
-      if 'record' in program and program['record'] == 'storage':
-        programInfo = self._client.Epg.info(program['pid'])
-        if len(programInfo)>0:
-          quality = self._plugin.get_setting('streamQuality', int)
-          mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self._client.streamService, self._client._sessionId, programInfo['recordpath'], self._client.quality[quality])
-          plot = ''
-          try:
-            plot = programInfo['sub-title']['fi']
-          except:
-            pass
-
-          menu.append({
-            'label': programInfo['title']['fi'],
-            'path': mediaUrl,
-            'info_type': 'video',
-            'is_playable': True,
-            'info': {
-              'Channel': programInfo['channel'],
-              'Plot': programInfo['title']['fi'],
-              'PlotOutline': plot
-            }
-          })
+      menuEntry = self._client.pidInfo(program)
+      if menuEntry != None:
+        menu.append(menuEntry)
 
     return menu
 
@@ -145,26 +104,8 @@ class Ui:
     menu = []
     tmp = self._client.Epg.searchMovies()
     for movie in tmp:
-      if 'record' in movie and movie['record'] == 'storage':
-        movieInfo = self._client.Epg.info(movie['pid'])
-        if len(movieInfo)>0:
-          quality = self._plugin.get_setting('streamQuality', int)
-          mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self._client.streamService, self._client._sessionId, movieInfo['recordpath'], self._client.quality[quality])
-          plot = ''
-          try:
-            plot = movieInfo['sub-title']['fi']
-          except:
-            pass
+      menuEntry = self._client.pidInfo(movie)
+      if menuEntry != None:
+        menu.append(menuEntry)
 
-          menu.append({
-            'label': movieInfo['title']['fi'],
-            'path': mediaUrl,
-            'info_type': 'video',
-            'is_playable': True,
-            'info': {
-              'Channel': movieInfo['channel'],
-              'Plot': movieInfo['title']['fi'],
-              'PlotOutline': plot
-            }
-          })
     return menu
