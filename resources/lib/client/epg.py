@@ -34,7 +34,7 @@ class Epg:
       return response['payload']
     else:
       self._plugin.log.debug("Missing error handling")
-      return []
+      return None
 
   def range(self, data):
     response = self._client.request('epg/range', data)

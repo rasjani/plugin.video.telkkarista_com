@@ -15,10 +15,10 @@ def cachehost():
 def live():
   return telkkarista.ui.LiveTVView()
 
-@plugin.route('/programs/<chanid>/<timescope>', name='programs_showprogramlist' )
+@plugin.route('/programs/<chanid>/<timescope>/<page>', name='programs_showprogramlist' )
 @plugin.route('/programs/<chanid>', name='programs_showchannellist')
 @plugin.route('/programs', name='programs')
-def programs(chanid = None, timescope = None):
+def programs(chanid = None, timescope = None, page=0):
   menu = []
 
   if chanid == None and timescope == None:
@@ -26,7 +26,7 @@ def programs(chanid = None, timescope = None):
   elif chanid != None and timescope == None:
     menu = telkkarista.ui.TimeScopeSelection(chanid)
   else:
-    menu = telkkarista.ui.ProgramSelection(chanid, timescope)
+    menu = telkkarista.ui.ProgramSelection(chanid, timescope, page)
 
   return menu
 
@@ -36,9 +36,9 @@ def programs(chanid = None, timescope = None):
 def search():
   return []
 
-@plugin.route('/movies/')
-def movies():
-  return telkkarista.ui.MoviesView()
+@plugin.route('/movies/<page>')
+def movies( page = 0 ):
+  return telkkarista.ui.MoviesView(page)
 
 @plugin.route('/')
 def index():

@@ -7,6 +7,8 @@
   <string id="30003">Search</string>
   <string id="30004">Settings</string>
   <string id="30005">Movies</string>
+  <string id="30006">Next Page</string>
+  <string id="30007">Previous Page</string>
 
   <string id="30100">Proxy Settings</string>
   <string id="30101">Use Proxy</string>
@@ -23,6 +25,7 @@
   <string id="30304">Pick the nearest</string>
   <string id="30305">Stream Host</string>
   <string id="30306">Stream Quality</string>
+  <string id="30307">Items per page</string>
 
   <string id="30400">Lowest</string>
   <string id="30401">Low</string>
@@ -37,5 +40,9 @@
   <string id="30501">Yesterday</string>
   <string id="30502">This Week</string>
   <string id="30503">All</string>
+
+  <string id="30600">10</string>
+  <string id="30601">20</string>
+  <string id="30602">30</string>
 
 </strings>

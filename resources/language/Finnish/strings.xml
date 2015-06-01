@@ -7,6 +7,8 @@
   <string id="30003">Haku</string>
   <string id="30004">Asetukset</string>
   <string id="30005">Elokuvat</string>
+  <string id="30006">Seuraava sivu</string>
+  <string id="30007">Edellinen sivu</string>
 
   <string id="30100">Välimuisti</string>
   <string id="30101">Välimuisti käytössä?</string>
@@ -22,6 +24,8 @@
   <string id="30303">Valittu</string>
   <string id="30304">Valitse lähin</string>
   <string id="30305">Stream host</string>
+  <string id="30306">Kuvan Laatu</string>
+  <string id="30307">Sivukoko</string>
 
   <string id="30400">Matalin</string>
   <string id="30401">Matala</string>
@@ -36,5 +40,9 @@
   <string id="30501">Eilen</string>
   <string id="30502">Tällä viikolla</string>
   <string id="30503">Kaikki</string>
+
+  <string id="30600">10</string>
+  <string id="30601">20</string>
+  <string id="30602">30</string>
 
 </strings>

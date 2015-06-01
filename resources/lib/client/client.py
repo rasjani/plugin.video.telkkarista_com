@@ -11,6 +11,7 @@ from .ui import Ui
 import urllib2
 import json
 import datetime,dateutil.parser, dateutil.tz
+from time import sleep
 
 
 class Client:
@@ -34,6 +35,12 @@ class Client:
       5: '720p',
       6: '1080p',
       7: 'master'
+  }
+
+  itemsPerPage = {
+      0: 10,
+      1: 20,
+      2: 30
   }
 
   _streams = {}
@@ -74,6 +81,18 @@ class Client:
 
     self.handleLogin()
 
+
+  def getProgramInfo(self, pid):
+    if pid in self._epg:
+      return self._epg[pid]
+    else:
+      sleep(0.4) # Telkkarista backend server seems to throttle request
+      programInfo = self.Epg.info(pid)
+      if programInfo != None:
+        self._epg[pid] = programInfo
+
+      return programInfo
+
   def checkCacheServer(self):
     hostList = self._cacheServers['payload']
     if not self.streamService in [u['host'] for u in hostList if u['status']=='up' ]:
@@ -82,28 +101,28 @@ class Client:
       return True
 
   def pidInfo(self, item):
-      if 'record' in item and item ['record'] == 'storage':
-        programInfo = self._client.Epg.info(['pid'])
-        if len(programInfo)>0:
-          quality = self._plugin.get_setting('streamQuality', int)
-          mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self._client.streamService, self._client._sessionId, programInfo['recordpath'], self._client.quality[quality])
-          plot = ''
-          try:
-            plot = programInfo['sub-title']['fi']
-          except:
-            pass
+    if 'record' in item and item ['record'] == 'storage':
+      programInfo =  self.getProgramInfo(item['pid'])
+      if len(programInfo)>0:
+        quality = self._plugin.get_setting('streamQuality', int)
+        mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
+        plot = ''
+        try:
+          plot = programInfo['sub-title']['fi']
+        except:
+          pass
 
-          return {
-            'label': programInfo['title']['fi'],
-            'path': mediaUrl,
-            'info_type': 'video',
-            'is_playable': True,
-            'info': {
-              'Channel': programInfo['channel'],
-              'Plot': programInfo['title']['fi'],
-              'PlotOutline': plot
-            }
+        return {
+          'label': programInfo['title']['fi'],
+          'path': mediaUrl,
+          'info_type': 'video',
+          'is_playable': True,
+          'info': {
+            'Channel': programInfo['channel'],
+            'Plot': programInfo['title']['fi'],
+            'PlotOutline': plot
           }
+        }
 
   def generateTimeRange(self, timeScope):
     currentTime = datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
@@ -137,6 +156,7 @@ class Client:
       self._cacheServers.update({"payload": self.Cache.get() })
       self._cacheServers.sync()
 
+    self._epg = self._plugin.get_storage('epgdata', TTL=20160)
 
   def handleLogin(self):
     invalidateCache = False

@@ -1,6 +1,7 @@
 __author__ = "rasjani"
 import random
 import json
+import datetime,dateutil.parser, dateutil.tz
 
 class Ui:
   def __init__(self, plugin, xbmcgui, client):
@@ -24,13 +25,13 @@ class Ui:
 
   def TimeScopeSelection(self, chanid):
     return [
-        {'label': self._plugin.get_string(30500), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=0), 'is_playable': False },
-        {'label': self._plugin.get_string(30501), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=1), 'is_playable': False },
-        {'label': self._plugin.get_string(30502), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=2), 'is_playable': False },
-        {'label': self._plugin.get_string(30503), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=3), 'is_playable': False },
+        {'label': self._plugin.get_string(30500), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=0, page=0), 'is_playable': False },
+        {'label': self._plugin.get_string(30501), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=1, page=0), 'is_playable': False },
+        {'label': self._plugin.get_string(30502), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=2, page=0), 'is_playable': False },
+        {'label': self._plugin.get_string(30503), 'path': self._plugin.url_for('programs_showprogramlist', chanid = chanid, timescope=3, page=0), 'is_playable': False },
     ]
 
-  def ProgramSelection(self, chanid, timescope):
+  def ProgramSelection(self, chanid, timescope, page=0):
     timeRanges = self._client.generateTimeRange(timescope)
     menu = []
     tmp = self._client.Epg.range({"from": timeRanges[0], "to": timeRanges[1], "streams": [chanid] } )
@@ -47,7 +48,7 @@ class Ui:
     return [
         {'label': self._plugin.get_string(30001), 'path': self._plugin.url_for('live'),     'is_playable': False },
         {'label': self._plugin.get_string(30002), 'path': self._plugin.url_for('programs'), 'is_playable': False },
-        {'label': self._plugin.get_string(30005), 'path': self._plugin.url_for('movies'),   'is_playable': False },
+        {'label': self._plugin.get_string(30005), 'path': self._plugin.url_for('movies', page=0),   'is_playable': False },
         {'label': self._plugin.get_string(30003), 'path': self._plugin.url_for('search'),   'is_playable': False },
     ]
 
@@ -100,12 +101,48 @@ class Ui:
     return menu
 
 
-  def MoviesView(self):
+  def getMovieList(self):
+    movieList = self._plugin.get_storage('moviecache', TTL=30)
+    if len(movieList.items())==0:
+      tmp = self._client.Epg.searchMovies()
+      for item in tmp:
+        pid = item['pid']
+        item['start'] = dateutil.parser.parse(item['start'])
+        item['stop'] = dateutil.parser.parse(item['stop'])
+        movieList[pid] = item
+
+      movieList.sync()
+
+    return movieList
+
+  def MoviesView(self, page):
     menu = []
-    tmp = self._client.Epg.searchMovies()
+    tmpArr = []
+
+    page = int(page)
+    itemsPerPage = self._client.itemsPerPage[self._plugin.get_setting('itemsperpage', int)]
+
+    tmp = self.getMovieList()
+
     for movie in tmp:
+      movieEntry = tmp[movie]
+      tmpArr.append(tmp[movie])
+
+    tmpArr = sorted(tmpArr, key=lambda k: k['start'])
+
+    startIdx = page * itemsPerPage
+    endIdx = startIdx + itemsPerPage
+
+    if endIdx > len(tmpArr):
+      endIdx = len(tmpArr) - 1
+
+    for idx in range(startIdx, endIdx):
+      movie = tmpArr[idx]
       menuEntry = self._client.pidInfo(movie)
       if menuEntry != None:
         menu.append(menuEntry)
+
+    if endIdx < len(tmpArr)-1:
+      menu.append({'label': self._plugin.get_string(30006), 'path': self._plugin.url_for('movies', page= page + 1 ),   'is_playable': False } )
 
     return menu
