@@ -10,6 +10,9 @@ class Ui:
     self._client = client
 
 
+  def _channelLogo(self, channelId):
+    return 'special://home/addons/%s/resources/media/%s.png' % ( self._client.clientName, channelId )
+
   def ProgramsChannelList(self):
     menu = []
     streamData = sorted(self._client._streams['payload'], key=lambda k: k['streamOrder'])
@@ -18,6 +21,7 @@ class Ui:
       channelName = stream['visibleName']
       menu.append({
         'label': channelName,
+        'thumbnail': self._channelLogo(channelId),
         'path': self._plugin.url_for('programs_showchannellist', chanid = channelId)
       })
     return menu
@@ -36,7 +40,9 @@ class Ui:
     menu = []
     tmp = self._client.Epg.range({"from": timeRanges[0], "to": timeRanges[1], "streams": [chanid] } )
 
-    for program in tmp[chanid]:
+    programList = sorted(tmp[chanid], key=lambda k: k['start'])
+
+    for program in programList:
       menuEntry = self._client.pidInfo(program)
       if menuEntry != None:
         menu.append(menuEntry)
@@ -84,15 +90,15 @@ class Ui:
       else:
         mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId, self._client.quality[quality]) ## TODO: fix later
 
-      iconUrl = 'https://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
+      # iconUrl = 'https://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
       menu.append({
         'label': channelName,
-        'thumbnail': iconUrl,
-        'icon': iconUrl,
+        'thumbnail': self._channelLogo(channelId),
         'path': mediaUrl,
         'info_type': 'video',
         'is_playable': True,
         'info': {
+          'ActualIcon': self._channelLogo(channelId),
           'Plot': plot,
           'PlotOutline': plot
         }
