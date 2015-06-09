@@ -43,7 +43,7 @@ class Ui:
     programList = sorted(tmp[chanid], key=lambda k: k['start'])
 
     for program in programList:
-      menuEntry = self._client.pidInfo(program)
+      menuEntry = self._client.pidInfo(program, False)
       if menuEntry != None:
         menu.append(menuEntry)
 
@@ -144,7 +144,7 @@ class Ui:
 
     for idx in range(startIdx, endIdx):
       movie = tmpArr[idx]
-      menuEntry = self._client.pidInfo(movie)
+      menuEntry = self._client.pidInfo(movie, True)
       if menuEntry != None:
         menu.append(menuEntry)
 

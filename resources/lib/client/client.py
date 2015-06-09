@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 __author__ = 'rasjani'
 
 from .user import User
@@ -10,7 +12,7 @@ from .ui import Ui
 
 import urllib2
 import json
-import datetime,dateutil.parser, dateutil.tz
+import datetime, dateutil.tz
 from time import sleep
 
 
@@ -100,42 +102,67 @@ class Client:
     else:
       return True
 
-  def pidInfo(self, item):
+  def pidInfo(self, item, isMovie):
     if 'record' in item and item ['record'] == 'storage':
       programInfo =  self.getProgramInfo(item['pid'])
       if len(programInfo)>0:
         quality = self._plugin.get_setting('streamQuality', int)
+        startTime = None
         mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
         plot = ''
         try:
           plot = programInfo['sub-title']['fi']
+          startTime = dateutil.parser.parse(programInfo['start'])
         except:
           pass
 
+        title = programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ','')
         return {
-          'label': programInfo['title']['fi'],
+          'label': "%s %s" % ( self.formatStartTime(startTime, isMovie), title ),
           'path': mediaUrl,
           'info_type': 'video',
           'is_playable': True,
           'info': {
             'Channel': programInfo['channel'],
             'Plot': programInfo['title']['fi'],
-            'PlotOutline': plot
+            'PlotOutline': plot,
+            'StartTime': programInfo['start'],
+            'EndTime': programInfo['stop']
           }
         }
+
+  def formatStartTime(self, date, isMovie):
+    if isMovie:
+      return "%02d.%02d %02d:%02d" % (date.day, date.month, date.hour, date.minute)
+    else:
+      return "%02d:%02d" % (date.hour, date.minute)
+
+  def startOfTheDay(self, current):
+    date = current
+    if date.hour < 4:
+      date = date - datetime.timedelta(days=1)
+    date = date.replace(hour=3, minute=0, second=0)
+    return date
+
+  def endOfTheDay(self, current):
+    date = current
+    if date.hour > 3:
+      date = date + datetime.timedelta(days=1)
+    date = date.replace(hour=2, minute=59, second=0)
+    return date
 
   def generateTimeRange(self, timeScope):
     currentTime = datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
     timeScope = int(timeScope)
     if timeScope == 0:
       toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=1)
+      fromTime = self.startOfTheDay(currentTime)
     elif timeScope == 1:
-      toTime = currentTime - datetime.timedelta(days=2)
-      fromTime = toTime - datetime.timedelta(days=1)
+      toTime = self.startOfTheDay(currentTime - datetime.timedelta(days=2))
+      fromTime = self.endOfTheDay(toTime - datetime.timedelta(days=1))
     elif timeScope == 2:
       toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=7)
+      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=7))
     elif timeScope == 4:
       toTime = currentTime
       fromTime = currentTime - datetime.timedelta(days=14)
