@@ -12,7 +12,10 @@ from .ui import Ui
 
 import urllib2
 import json
-import datetime, dateutil.tz
+import datetime
+import dateutil.tz
+import htmlentitydefs
+import re
 from time import sleep
 
 
@@ -95,6 +98,29 @@ class Client:
 
       return programInfo
 
+
+  def unescape(self,text):
+    def fixup(m):
+      text = m.group(0)
+      if text[:2] == "&#":
+        # character reference
+        try:
+          if text[:3] == "&#x":
+            return unichr(int(text[3:-1], 16))
+          else:
+            return unichr(int(text[2:-1]))
+        except ValueError:
+          pass
+      else:
+        # named entity
+        try:
+          text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+        except KeyError:
+          pass
+      return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
+
   def checkCacheServer(self):
     hostList = self._cacheServers['payload']
     if not self.streamService in [u['host'] for u in hostList if u['status']=='up' ]:
@@ -111,14 +137,31 @@ class Client:
         mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
         plot = ''
         try:
-          plot = programInfo['sub-title']['fi']
+          plot = self.unescape(programInfo['sub-title']['fi'])
           startTime = dateutil.parser.parse(programInfo['start'])
+          endTime = dateutil.parser.parse(programInfo['stop'])
         except:
           pass
 
-        title = programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ','')
+
+        title = self.unescape(programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ',''))
+
+        if isMovie:
+          # FOX's leffamaailma doesnt show title correctly.
+          if title == "Leffamaailma" and len(plot)>0:
+            first = plot.split('.', 1)
+            second = plot.split(' - ', 1)
+            if len(first[0])<len(second[0]):
+              title = first[0]
+              plot = first[1]
+            else:
+              title = second[0]
+              plot = second[1]
+
+
+        fullLabel = "%s %s" % ( self.formatStartTime(startTime, isMovie), title )
         return {
-          'label': "%s %s" % ( self.formatStartTime(startTime, isMovie), title ),
+          'label': fullLabel,
           'path': mediaUrl,
           'info_type': 'video',
           'is_playable': True,
@@ -126,8 +169,10 @@ class Client:
             'Channel': programInfo['channel'],
             'Plot': programInfo['title']['fi'],
             'PlotOutline': plot,
-            'StartTime': programInfo['start'],
-            'EndTime': programInfo['stop']
+            'StartTime': startTime.strftime("%H:%M"),
+            'EndTime': endTime.strftime("%H:%M"),
+            'Date': startTime.strftime("%d.%m.%Y"),
+            'Duration': (endTime-startTime).seconds
           }
         }
 
