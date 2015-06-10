@@ -10,7 +10,7 @@ class Ui:
     self._client = client
 
 
-  def _channelLogo(self, channelId):
+  def _imageUrl(self, channelId):
     return 'special://home/addons/%s/resources/media/%s.png' % ( self._client.clientName, channelId )
 
   def ProgramsChannelList(self):
@@ -21,7 +21,7 @@ class Ui:
       channelName = stream['visibleName']
       menu.append({
         'label': channelName,
-        'thumbnail': self._channelLogo(channelId),
+        'thumbnail': self._imageUrl(channelId),
         'path': self._plugin.url_for('programs_showchannellist', chanid = channelId)
       })
     return menu
@@ -52,10 +52,10 @@ class Ui:
 
   def  MainMenu(self):
     return [
-        {'label': self._plugin.get_string(30001), 'path': self._plugin.url_for('live'),     'is_playable': False },
-        {'label': self._plugin.get_string(30002), 'path': self._plugin.url_for('programs'), 'is_playable': False },
-        {'label': self._plugin.get_string(30005), 'path': self._plugin.url_for('movies', page=0),   'is_playable': False },
-        {'label': self._plugin.get_string(30003), 'path': self._plugin.url_for('search'),   'is_playable': False },
+      {'label': self._plugin.get_string(30001), 'path': self._plugin.url_for('live'),     'is_playable': False,  'thumbnail': self._imageUrl('live') },
+      {'label': self._plugin.get_string(30002), 'path': self._plugin.url_for('programs'), 'is_playable': False, 'thumbnail': self._imageUrl('programs') },
+      {'label': self._plugin.get_string(30005), 'path': self._plugin.url_for('movies', page=0),   'is_playable': False, 'thumbnail': self._imageUrl('movies') },
+      {'label': self._plugin.get_string(30003), 'path': self._plugin.url_for('search'),   'is_playable': False, 'thumbnail': self._imageUrl('search') },
     ]
 
   def cacheHostDialog(self):
@@ -93,12 +93,12 @@ class Ui:
       # iconUrl = 'https://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
       menu.append({
         'label': channelName,
-        'thumbnail': self._channelLogo(channelId),
+        'thumbnail': self._imageUrl(channelId),
         'path': mediaUrl,
         'info_type': 'video',
         'is_playable': True,
         'info': {
-          'ActualIcon': self._channelLogo(channelId),
+          'ActualIcon': self._imageUrl(channelId),
           'Plot': plot,
           'PlotOutline': plot
         }
