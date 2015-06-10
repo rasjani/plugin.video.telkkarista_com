@@ -16,8 +16,8 @@ var libStreamingClient = function(host, debug){
 	 * This is our client object where all other functions are loaded to
 	 */
 	var client = {
-		apiEndpoint: window.location.protocol + '//api.' + host,
-		loginService: window.location.protocol + '//login.' + host,
+		apiEndpoint: 'https://api.' + host,
+		loginService: 'https://login.' + host,
 		versionString: 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)',
 		apiVersion: '1',
 		storage: null,
@@ -50,7 +50,7 @@ var libStreamingClient = function(host, debug){
 			}
 		}
 		client.suckyBrowser = true;
-		client.apiEndpoint = window.location.protocol + '//' + window.location.host + '/corsproxy';
+		client.apiEndpoint = 'https://' + window.location.host + '/corsproxy';
 	}
 	
 	/*
@@ -435,7 +435,7 @@ var libStreamingClient = function(host, debug){
 				client.emit('loginRequired');
 			});
 		//if(client.suckyBrowser) {
-			var testFile = window.location.protocol + '//' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
+			var testFile = 'https://' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
 
 			var _tmp = new Image();
 
@@ -709,84 +709,50 @@ var libStreamingClient = function(host, debug){
 	client.cache.speedtest = function(server) {
 		var defer = q.defer();
 		var startTime = new Date().getTime();
-		var latencyFile = window.location.protocol + '//' + server.host + '/check.jpg?' + new Date().getTime();
+		var latencyFile = 'https://' + server.host + '/check.jpg?' + new Date().getTime();
+		var testFile = 'https://' + server.host + '/speedtest.jpg?' + new Date().getTime();
+		var bytes = 719431;
 
-//		if(client.suckyBrowser) {
-			var testFile = window.location.protocol + '//' + server.host + '/speedtest.jpg?' + new Date().getTime();
-			var bytes = 719431;
+		var _tmp = new Image();
+	
+		_tmp.onload = function() {
+			var duration = new Date().getTime() - startTime;
+			var latencyStart = new Date().getTime();
 
 			var _tmp = new Image();
-		
+			
 			_tmp.onload = function() {
-				var duration = new Date().getTime() - startTime;
-				var latencyStart = new Date().getTime();
-
-				var _tmp = new Image();
-				
-				_tmp.onload = function() {
-					defer.resolve({
-						mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-						length: duration/1000,
-						latency: (new Date().getTime() - latencyStart)
-					});
-				}
-
-				_tmp.onerror = function() {
-					defer.resolve({
-						mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-						length: duration/1000,
-						latency: -1
-					});
-				}
-
-				_tmp.src = latencyFile;
+				defer.resolve({
+					mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+					length: duration/1000,
+					latency: (new Date().getTime() - latencyStart)
+				});
 			}
+
 			_tmp.onerror = function() {
 				defer.resolve({
-					mbit: 0,
-					length: 0,
+					mbit: (((bytes/1024)/1024)*8)/(duration/1000),
+					length: duration/1000,
 					latency: -1
 				});
 			}
-			_tmp.src = testFile;
 
-/*		} else {
-			var testFile = 'http://' + server.host + '/speedtest_1mb.bin';
-			var bytes = 1024 * 1024;
-
-			request(false, false, testFile)
-				.then(function() {
-					var duration = new Date().getTime() - startTime;
-					var latencyStart = new Date().getTime();
-
-					var _tmp = new Image();
-					
-					_tmp.onload = function() {
-						defer.resolve({
-							mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-							length: duration/1000,
-							latency: (new Date().getTime() - latencyStart)
-						});
-					}
-
-					_tmp.onerror = function() {
-						defer.resolve({
-							mbit: (((bytes/1024)/1024)*8)/(duration/1000),
-							length: duration/1000,
-							latency: -1
-						});
-					}
-
-					_tmp.src = latencyFile;
-				})
-				.error(defer.reject);
-		}*/
+			_tmp.src = latencyFile;
+		}
+		_tmp.onerror = function() {
+			defer.resolve({
+				mbit: 0,
+				length: 0,
+				latency: -1
+			});
+		}
+		_tmp.src = testFile;
 		return defer.promise;
 	}
 
 
 	client.cache.getUrl = function(path, cacheServer) {
-		var url = window.location.protocol + '//' + (cacheServer?cacheServer:client.cacheServers[0].host) + '/' + client.user.session + path
+		var url = 'https://' + (cacheServer?cacheServer:client.cacheServers[0].host) + '/' + client.user.session + path
 		return url;
 	}
 
