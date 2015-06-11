@@ -91,13 +91,16 @@ class Ui:
       else:
         mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId, self._client.quality[quality]) ## TODO: fix later
 
-      # iconUrl = 'https://%s/%s/live/%s_small.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
+      fanartUrl = 'https://%s/%s/live/%s_large.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
       menu.append({
         'label': channelName,
         'thumbnail': self._imageUrl(channelId),
         'path': mediaUrl,
         'info_type': 'video',
         'is_playable': True,
+        'properties': {
+          'Fanart_Image': fanartUrl
+        },
         'info': {
           'ActualIcon': self._imageUrl(channelId),
           'Plot': plot,
