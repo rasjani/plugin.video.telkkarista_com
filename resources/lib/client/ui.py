@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 __author__ = "rasjani"
 import random
 import json
-import datetime,dateutil.parser, dateutil.tz
 
 class Ui:
   def __init__(self, plugin, xbmcgui, client):
@@ -113,8 +113,8 @@ class Ui:
       tmp = self._client.Epg.searchMovies()
       for item in tmp:
         pid = item['pid']
-        item['start'] = dateutil.parser.parse(item['start'])
-        item['stop'] = dateutil.parser.parse(item['stop'])
+        item['start'] = self._client.parseDate(item['start'])
+        item['stop'] = self._client.parseDate(item['stop'])
         movieList[pid] = item
 
       movieList.sync()

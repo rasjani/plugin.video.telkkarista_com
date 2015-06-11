@@ -14,6 +14,7 @@ import urllib2
 import json
 import datetime
 import dateutil.tz
+import dateutil.parser
 import htmlentitydefs
 import re
 from time import sleep
@@ -128,6 +129,12 @@ class Client:
     else:
       return True
 
+
+  def parseDate(self, date):
+    date =  dateutil.parser.parse(date)
+    date = date.astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+    return date
+
   def pidInfo(self, item, isMovie):
     if 'record' in item and item ['record'] == 'storage':
       programInfo =  self.getProgramInfo(item['pid'])
@@ -138,8 +145,8 @@ class Client:
         plot = ''
         try:
           plot = self.unescape(programInfo['sub-title']['fi'])
-          startTime = dateutil.parser.parse(programInfo['start'])
-          endTime = dateutil.parser.parse(programInfo['stop'])
+          startTime = self.parseDate(programInfo['start'])
+          endTime = self.parseDate(programInfo['stop'])
         except:
           pass
 
@@ -149,17 +156,16 @@ class Client:
         if isMovie:
           # FOX's leffamaailma doesnt show title correctly.
           if title == "Leffamaailma" and len(plot)>0:
-            first = plot.split('.', 1)
-            second = plot.split(' - ', 1)
-            if len(first[0])<len(second[0]):
-              title = first[0]
-              plot = first[1]
-            else:
-              title = second[0]
-              plot = second[1]
+            match = re.compile(ur'^(.*?)\s{0,}[-.]{1}\s{0,}(.*)$')
+            result = re.search(match, plot)
+            title = result.group(1)
+            plot = result.group(2)
 
 
         fullLabel = "%s %s" % ( self.formatStartTime(startTime, isMovie), title )
+        fullPlot = "%s - %s [%s]\n%s\n" % (programInfo['title']['fi'],
+            self.formatStartTime(startTime, True),
+            programInfo['channel'].upper(),plot)
         return {
           'label': fullLabel,
           'path': mediaUrl,
@@ -167,7 +173,7 @@ class Client:
           'is_playable': True,
           'info': {
             'Channel': programInfo['channel'],
-            'Plot': programInfo['title']['fi'],
+            'Plot': fullPlot,
             'PlotOutline': plot,
             'StartTime': startTime.strftime("%H:%M"),
             'EndTime': endTime.strftime("%H:%M"),
@@ -191,8 +197,7 @@ class Client:
 
   def endOfTheDay(self, current):
     date = current
-    if date.hour > 3:
-      date = date + datetime.timedelta(days=1)
+    date = date + datetime.timedelta(days=1)
     date = date.replace(hour=2, minute=59, second=0)
     return date
 
@@ -203,14 +208,14 @@ class Client:
       toTime = currentTime
       fromTime = self.startOfTheDay(currentTime)
     elif timeScope == 1:
-      toTime = self.startOfTheDay(currentTime - datetime.timedelta(days=2))
-      fromTime = self.endOfTheDay(toTime - datetime.timedelta(days=1))
+      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=1))
+      toTime = self.endOfTheDay(fromTime)
     elif timeScope == 2:
       toTime = currentTime
-      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=7))
+      fromTime = self.startOfTheDay(self.startOfTheDay(toTime - datetime.timedelta(days=7)))
     elif timeScope == 4:
       toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=14)
+      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=14))
     else:
       toTime = currentTime
       fromTime = currentTime - datetime.timedelta(days=1)
