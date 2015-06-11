@@ -45,3 +45,21 @@ class Epg:
     else:
       self._plugin.log.debug("Missing error handling")
       return []
+
+  def titles(self):
+    response = self._client.request('epg/titles')
+    response = json.loads(response)
+    if response['status'] == 'ok' and response['code'] == 'titles':
+      return response['payload']
+    else:
+      self._plugin.log.debug("Missing error handling")
+      return []
+
+  def titleSearch(self, title):
+    response = self._client.request('epg/titleSearch', { "search": title})
+    response = json.loads(response)
+    if response['status'] == 'ok' and response['code'] == 'titlesearch':
+      return response['payload']
+    else:
+      self._plugin.log.debug("Missing error handling")
+      return None
