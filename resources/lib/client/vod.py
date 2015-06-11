@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 __author__ = 'rasjani'
 
+from .apibase import APIBaseMixin
 
-class Vod:
+class Vod(APIBaseMixin):
+
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
+    self.apiBase = "vod"
 
   def info(self, pid):
-    response = self._client.request('vod/info', { "pid": pid})
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'info':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return None
+    return self.apiCall("info", {"pid": pid })

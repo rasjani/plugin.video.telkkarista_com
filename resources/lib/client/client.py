@@ -10,17 +10,15 @@ from .cache import Cache
 from .ui import Ui
 
 
+from .. import utils
+
 import urllib2
 import json
-import datetime
-import dateutil.tz
-import dateutil.parser
-import htmlentitydefs
 import re
 from time import sleep
 
 
-class Client:
+class Client():
 
   apiEndPoint = ''
   loginService = ''
@@ -104,40 +102,14 @@ class Client:
       return programInfo
 
 
-  def unescape(self,text):
-    def fixup(m):
-      text = m.group(0)
-      if text[:2] == "&#":
-        # character reference
-        try:
-          if text[:3] == "&#x":
-            return unichr(int(text[3:-1], 16))
-          else:
-            return unichr(int(text[2:-1]))
-        except ValueError:
-          pass
-      else:
-        # named entity
-        try:
-          text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-        except KeyError:
-          pass
-      return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
-
-
   def checkCacheServer(self):
     hostList = self._cacheServers['payload']
+
     if not self.streamService in [u['host'] for u in hostList if u['status']=='up' ]:
       return False
     else:
       return True
 
-
-  def parseDate(self, date):
-    date =  dateutil.parser.parse(date)
-    date = date.astimezone(dateutil.tz.gettz('Europe/Helsinki'))
-    return date
 
   def pidInfo(self, item, isMovie):
     if 'record' in item and item ['record'] == 'storage':
@@ -148,22 +120,22 @@ class Client:
         mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
         plot = ''
         try:
-          plot = self.unescape(programInfo['sub-title']['fi'])
+          plot = utils.unescape(programInfo['sub-title']['fi'])
         except:
           pass
 
         try:
-          startTime = self.parseDate(programInfo['start'])
+          startTime = utils.parseDate(programInfo['start'])
         except:
-          startTime = self.now()
+          startTime = utils.now()
           pass
         try:
-          endTime = self.parseDate(programInfo['stop'])
+          endTime = utils.parseDate(programInfo['stop'])
         except:
-          endTime = self.now()
+          endTime = utils.now()
           pass
 
-        title = self.unescape(programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ',''))
+        title = utils.unescape(programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ',''))
 
         if isMovie:
           # FOX's leffamaailma doesnt show title correctly.
@@ -174,9 +146,9 @@ class Client:
             plot = result.group(2)
 
 
-        fullLabel = "%s %s" % ( self.formatStartTime(startTime, isMovie), title )
+        fullLabel = "%s %s" % ( utils.formatStartTime(startTime, isMovie), title )
         fullPlot = "%s - %s [%s]\n%s\n" % (programInfo['title']['fi'],
-            self.formatStartTime(startTime, True),
+            utils.formatStartTime(startTime, True),
             programInfo['channel'].upper(),plot)
         return {
           'label': fullLabel,
@@ -194,49 +166,6 @@ class Client:
           }
         }
 
-  def formatStartTime(self, date, isMovie):
-    if isMovie:
-      return "%02d.%02d %02d:%02d" % (date.day, date.month, date.hour, date.minute)
-    else:
-      return "%02d:%02d" % (date.hour, date.minute)
-
-  def startOfTheDay(self, current):
-    date = current
-    if date.hour < 4:
-      date = date - datetime.timedelta(days=1)
-    date = date.replace(hour=3, minute=0, second=0)
-    return date
-
-  def endOfTheDay(self, current):
-    date = current
-    date = date + datetime.timedelta(days=1)
-    date = date.replace(hour=2, minute=59, second=0)
-    return date
-
-  def now(self):
-    return datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
-
-  def generateTimeRange(self, timeScope):
-    currentTime = self.now()
-    timeScope = int(timeScope)
-    if timeScope == 0:
-      toTime = currentTime
-      fromTime = self.startOfTheDay(currentTime)
-    elif timeScope == 1:
-      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=1))
-      toTime = self.endOfTheDay(fromTime)
-    elif timeScope == 2:
-      toTime = currentTime
-      fromTime = self.startOfTheDay(self.startOfTheDay(toTime - datetime.timedelta(days=7)))
-    elif timeScope == 4:
-      toTime = currentTime
-      fromTime = self.startOfTheDay(currentTime - datetime.timedelta(days=14))
-    else:
-      toTime = currentTime
-      fromTime = currentTime - datetime.timedelta(days=1)
-
-    return [fromTime.isoformat(), toTime.isoformat()]
-
   def populateCache(self, invalidate = False):
     self._streams = self._plugin.get_storage('streams')
     self._cacheServers = self._plugin.get_storage('cacheServers')
@@ -245,7 +174,8 @@ class Client:
       self._streams.sync()
 
     if len(self._cacheServers.items())==0 or invalidate == True:
-      self._cacheServers.update({"payload": self.Cache.get() })
+      ret = self.Cache.get()
+      self._cacheServers.update({"payload": ret })
       self._cacheServers.sync()
 
     self._epg = self._plugin.get_storage('epgdata', TTL=20160)

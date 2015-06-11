@@ -2,6 +2,7 @@
 __author__ = "rasjani"
 import random
 import json
+from .. import utils
 
 class Ui:
   def __init__(self, plugin, xbmcgui, client):
@@ -36,7 +37,7 @@ class Ui:
     ]
 
   def ProgramSelection(self, chanid, timescope, page=0):
-    timeRanges = self._client.generateTimeRange(timescope)
+    timeRanges = utils.generateTimeRange(timescope)
     menu = []
     tmp = self._client.Epg.range({"from": timeRanges[0], "to": timeRanges[1], "streams": [chanid] } )
 
@@ -113,8 +114,8 @@ class Ui:
       tmp = self._client.Epg.searchMovies()
       for item in tmp:
         pid = item['pid']
-        item['start'] = self._client.parseDate(item['start'])
-        item['stop'] = self._client.parseDate(item['stop'])
+        item['start'] = utils.parseDate(item['start'])
+        item['stop'] = utils.parseDate(item['stop'])
         movieList[pid] = item
 
       movieList.sync()

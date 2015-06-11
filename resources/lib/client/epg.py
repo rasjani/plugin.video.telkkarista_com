@@ -1,65 +1,30 @@
 # -*- coding: utf-8 -*-
 __author__ = 'rasjani'
-import json
+from .apibase import APIBaseMixin
 
-class Epg:
+class Epg(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
+    self.apiBase = "epg"
 
   def current(self):
-    response = self._client.request('epg/current')
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'current':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return []
+    return self.apiCall("current")
 
   def search(self, data):
-    response = self._client.request('epg/search', data)
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'search':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return []
+    return self.apiCall("search")
 
   def searchMovies(self):
     return self.search( {"search":"elokuva"} )
 
   def info(self, pid):
-    response = self._client.request('epg/info', { "pid": pid})
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'info':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return None
+    return self.apiCall("info", { "pid": pid})
 
   def range(self, data):
-    response = self._client.request('epg/range', data)
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'range':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return []
+    return self.apiCall("range", data )
 
   def titles(self):
-    response = self._client.request('epg/titles')
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'titles':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return []
+    return self.apiCall("titles")
 
   def titleSearch(self, title):
-    response = self._client.request('epg/titleSearch', { "search": title})
-    response = json.loads(response)
-    if response['status'] == 'ok' and response['code'] == 'titlesearch':
-      return response['payload']
-    else:
-      self._plugin.log.debug("Missing error handling")
-      return None
+    return self.apiCall("titleSearch", { "search": title})

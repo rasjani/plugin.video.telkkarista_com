@@ -1,45 +1,36 @@
 # -*- coding: utf-8 -*-
 __author__ = 'rasjani'
 
-import json
+from .apibase import APIBaseMixin
 
 
-class User:
+class User(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
+    self.apiBase = "user"
 
   def login(self):
     email = self._plugin.get_setting('email', unicode)
     password = self._plugin.get_setting('password', unicode);
 
-    response = json.loads(self._client.request('user/login',  {'password':password,'email':email }))
+    payload = self.apiCall('login', {'password':password,'email':email }, requestSuccess='login_ok')
 
-    if response['status'] == 'ok' and response['code'] == 'login_ok':
-      self._client.setSessionId(response['payload'])
+    if payload:
+      self._client.setSessionId(payload)
+      return True
     else:
-      self._plugin.log.debug("Missing error handling")
+      return False
 
   def checkSession(self):
-    response = json.loads(self._client.request('user/checkSession'))
-    if response['status'] == 'ok' and response['code'] == 'checkSession':
-    	return True
-    else:
-    	return False
+    payload = self.apiCall("checkSession")
+    return payload != None
 
   def info(self):
-    response = json.loads(self._client.request('user/info'))
-    if response['status'] == 'ok' and response['code'] == 'info':
-    	return response['payload']
-    else:
-    	return None
+    return self.apiCall("info")
 
   def settings(self):
-    response = json.loads(self._client.request('user/settings'))
-    if response['status'] == 'ok' and response['code'] == 'settings':
-    	return response['payload']
-    else:
-    	return None
+    return self.apiCall("settings")
 
 
 
