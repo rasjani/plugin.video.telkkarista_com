@@ -78,6 +78,7 @@ class Client:
     self.User = User(self, plugin)
     self.Streams = Streams(self, plugin)
     self.Epg = Epg(self, plugin)
+    self.Vod = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
 
     self.ui = Ui(plugin, xbmcgui, self)
@@ -87,6 +88,9 @@ class Client:
 
     self.handleLogin()
 
+  def getUrl(self,path):
+    url = "https://%s/%s/%s" & (self.streamService, self_sessionId , path )
+    return url
 
   def getProgramInfo(self, pid):
     if pid in self._epg:
@@ -145,11 +149,19 @@ class Client:
         plot = ''
         try:
           plot = self.unescape(programInfo['sub-title']['fi'])
-          startTime = self.parseDate(programInfo['start'])
-          endTime = self.parseDate(programInfo['stop'])
         except:
           pass
 
+        try:
+          startTime = self.parseDate(programInfo['start'])
+        except:
+          startTime = self.now()
+          pass
+        try:
+          endTime = self.parseDate(programInfo['stop'])
+        except:
+          endTime = self.now()
+          pass
 
         title = self.unescape(programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ',''))
 
@@ -201,8 +213,11 @@ class Client:
     date = date.replace(hour=2, minute=59, second=0)
     return date
 
+  def now(self):
+    return datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+
   def generateTimeRange(self, timeScope):
-    currentTime = datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+    currentTime = self.now()
     timeScope = int(timeScope)
     if timeScope == 0:
       toTime = currentTime
