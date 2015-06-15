@@ -5,10 +5,11 @@ import json
 from .. import utils
 
 class Ui:
-  def __init__(self, plugin, xbmcgui, client):
+  def __init__(self, plugin, xbmcgui, xbmc, client):
     self._plugin = plugin
     self._gui = xbmcgui
     self._client = client
+    self._xbmc = xbmc
 
 
   def _imageUrl(self, channelId):
@@ -38,18 +39,19 @@ class Ui:
 
   def ProgramSelection(self, chanid, timescope, page=0):
     timeRanges = utils.generateTimeRange(timescope)
-    menu = []
     tmp = self._client.Epg.range({"from": timeRanges[0], "to": timeRanges[1], "streams": [chanid] } )
 
     programList = sorted(tmp[chanid], key=lambda k: k['start'])
+    return self.ProgramList(programList, False)
 
+  def ProgramList(self, programList, fullDate):
+    menu = []
     for program in programList:
-      menuEntry = self._client.pidInfo(program, False)
+      menuEntry = self._client.pidInfo(program, fullDate)
       if menuEntry != None:
         menu.append(menuEntry)
 
     return menu
-
 
   def  MainMenu(self):
     return [
@@ -154,5 +156,30 @@ class Ui:
 
     if endIdx < len(tmpArr)-1:
       menu.append({'label': self._plugin.get_string(30006), 'path': self._plugin.url_for('movies', page= page + 1 ),   'is_playable': False } )
+
+    return menu
+
+
+  def Search(self, searchKeyword):
+    tmp = self._client.Epg.search( {"search": searchKeyword })
+    return self.ProgramList(tmp, True)
+
+
+  def SearchDialog(self):
+    keyboard =  self._xbmc.Keyboard()
+    keyboard.doModal()
+    searchEntry = keyboard.getText()
+    if keyboard.isConfirmed() and searchEntry != '':
+      return searchEntry
+    else:
+      return None
+
+  def SearchView(self):
+    oldSearches = self._plugin.get_storage('searches')
+    menu = []
+    menu.append({'label': self._plugin.get_string(30702), 'path': self._plugin.url_for('newsearchbykeyword' ),   'is_playable': False } )
+
+    for searchEntry in sorted(oldSearches, key=lambda k: k['added']):
+      menu.append({'label': searchEntry['search'], 'path': self._plugin.url_for('searchbykeyword', searchWord = searchEntry['search'] ), 'is_playable': False } )
 
     return menu

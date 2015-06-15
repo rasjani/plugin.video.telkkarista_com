@@ -58,7 +58,7 @@ class Client():
 
   _xlibversion = 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)'
 
-  def __init__(self, host, plugin, xbmcgui):
+  def __init__(self, host, plugin, xbmcgui, xbmc):
     self._plugin = plugin
     self._useProxy = plugin.get_setting('use_proxy',bool)
     # self.debug = plugin.get_setting('debug',bool)
@@ -79,7 +79,7 @@ class Client():
     self.Vod = Epg(self, plugin)
     self.Cache = Cache(self, plugin)
 
-    self.ui = Ui(plugin, xbmcgui, self)
+    self.ui = Ui(plugin, xbmcgui, xbmc, self)
 
     self._sessionId = plugin.get_setting('sessionId', unicode)
     self.streamService = plugin.get_setting('cachehost', unicode)

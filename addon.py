@@ -4,7 +4,7 @@ from resources.lib import Client
 
 plugin = Plugin()
 
-telkkarista = Client('telkkarista.com', plugin, xbmcgui)
+telkkarista = Client('telkkarista.com', plugin, xbmcgui, xbmc)
 
 
 @plugin.route('/cachehost')
@@ -31,10 +31,20 @@ def programs(chanid = None, timescope = None, page=0):
   return menu
 
 
+@plugin.route('/newsearchbykeyword')
+def newsearchbykeyword():
+  searchKeyword = telkkarista.ui.SearchDialog()
+  if searchKeyword != None:
+    return searchbykeyword(searchKeyword)
+
+
+@plugin.route('searchbykeyword/<searchKeyword>')
+def searchbykeyword(searchKeyword):
+  return telkkarista.ui.Search(searchKeyword)
 
 @plugin.route('/search/')
 def search():
-  return []
+  return telkkarista.ui.SearchView()
 
 @plugin.route('/movies/<page>')
 def movies( page = 0 ):
@@ -42,7 +52,7 @@ def movies( page = 0 ):
 
 @plugin.route('/')
 def index():
-    return telkkarista.ui.MainMenu()
+  return telkkarista.ui.MainMenu()
 
 
 if __name__ == '__main__':

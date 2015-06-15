@@ -12,7 +12,7 @@ class Epg(APIBaseMixin):
     return self.apiCall("current")
 
   def search(self, data):
-    return self.apiCall("search")
+    return self.apiCall("search", data )
 
   def searchMovies(self):
     return self.search( {"search":"elokuva"} )
