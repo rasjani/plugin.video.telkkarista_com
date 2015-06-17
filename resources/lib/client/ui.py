@@ -160,9 +160,15 @@ class Ui:
     return menu
 
 
+
+  def addSearchKeyword(self, keyword):
+    oldSearches = self._plugin.get_storage('searches')
+    oldSearches[utils.now()] = keyword
+    oldSearches.sync()
+
   def Search(self, searchKeyword):
-    tmp = self._client.Epg.search( {"search": searchKeyword })
-    return self.ProgramList(tmp, True)
+    searchResults = self._client.Epg.search( {"search": searchKeyword })
+    return self.ProgramList(searchResults, True)
 
 
   def SearchDialog(self):
@@ -179,7 +185,8 @@ class Ui:
     menu = []
     menu.append({'label': self._plugin.get_string(30702), 'path': self._plugin.url_for('newsearchbykeyword' ),   'is_playable': False } )
 
-    for searchEntry in sorted(oldSearches, key=lambda k: k['added']):
-      menu.append({'label': searchEntry['search'], 'path': self._plugin.url_for('searchbykeyword', searchWord = searchEntry['search'] ), 'is_playable': False } )
+    for searchEntry in oldSearches:
+      token = oldSearches[searchEntry]
+      menu.append({'label': token, 'path': self._plugin.url_for('searchByKeyword', token = token), 'is_playable': False } )
 
     return menu
