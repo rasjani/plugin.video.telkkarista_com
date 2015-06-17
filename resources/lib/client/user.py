@@ -14,7 +14,7 @@ class User(APIBaseMixin):
     email = self._plugin.get_setting('email', unicode)
     password = self._plugin.get_setting('password', unicode);
 
-    payload = self.apiCall('login', {'password':password,'email':email }, requestSuccess='login_ok')
+    payload = self.apiCall('login', {'password':password,'email':email })
 
     if payload:
       self._client.setSessionId(payload)

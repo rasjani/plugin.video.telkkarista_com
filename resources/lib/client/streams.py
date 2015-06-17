@@ -10,4 +10,4 @@ class Streams(APIBaseMixin):
     self.apiBase = "streams"
 
   def get(self):
-    return self.apiCall("get", requestSuccess="streams")
+    return self.apiCall("get")
