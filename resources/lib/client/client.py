@@ -90,6 +90,24 @@ class Client():
     url = "https://%s/%s/%s" & (self.streamService, self_sessionId , path )
     return url
 
+  def populateProgramInfoCache(self, programs):
+    amount = 50
+    pidsToFetch = []
+    for program in programs:
+      if not program in self._epg:
+        pidsToFetch.append(program)
+
+    while len(pidsToFetch)>0:
+      fetch = pidsToFetch[0:amount]
+      toBeStored = self.Epg.info(fetch)
+      del pidsToFetch[0:amount]
+
+      for programInfo in toBeStored:
+        pid = programInfo['_id']
+        self._epg[pid] = programInfo
+
+    self._epg.sync()
+
   def getProgramInfo(self, pid):
     if pid in self._epg:
       return self._epg[pid]
@@ -98,6 +116,7 @@ class Client():
       programInfo = self.Epg.info(pid)
       if programInfo != None:
         self._epg[pid] = programInfo
+        self._epg.sync() # TODO: fix later, dont call sync after every fetch!
 
       return programInfo
 

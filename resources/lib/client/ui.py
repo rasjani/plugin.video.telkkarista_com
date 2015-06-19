@@ -165,6 +165,7 @@ class Ui:
     itemsPerPage = self._client.itemsPerPage[self._plugin.get_setting('itemsperpage', int)]
 
     tmp = self.getMovieList()
+    self._client.populateProgramInfoCache(tmp)
 
     for movie in tmp:
       movieEntry = tmp[movie]
