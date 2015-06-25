@@ -5,6 +5,7 @@ __author__ = 'rasjani'
 import datetime
 import dateutil.tz
 import dateutil.parser
+import time
 import htmlentitydefs
 import re
 
@@ -76,4 +77,17 @@ def generateTimeRange(timeScope):
     fromTime = currentTime - datetime.timedelta(days=1)
 
   return [fromTime.isoformat(), toTime.isoformat()]
+
+
+def unixtimestampms(dt = None):
+  if dt == None:
+    dt = now()
+
+  return int( time.mktime(dt.timetuple())*1e3 + dt.microsecond/1e3)
+
+def unixtimestamp(dt = None):
+  if dt != None:
+    return int(time.mktime(dt.timetuple()))
+  else:
+    return int(time.mktime(now()))
 

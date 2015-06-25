@@ -199,7 +199,7 @@ class Client():
     self._plugin.set_setting("sessionId", id)
     self._sessionId = id
 
-  def request(self, apiMethod, data=None, path=None):
+  def request(self, apiMethod, data=None, path=None, timeout = 60):
     uri = path
     if not path:
       uri = "%s/%s/%s" % (self.apiEndPoint, self.apiVersion, apiMethod)
@@ -226,11 +226,11 @@ class Client():
       }
       opener = urllib2.build_opener(urllib2.ProxyHandler(proxies, debuglevel=self._debugLevel))
       urllib2.install_opener(opener)
-      conn = opener.open(req)
+      conn = opener.open(req, timeout = timeout)
     else:
       opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=self._debugLevel))
       urllib2.install_opener(opener)
-      conn = opener.open(req)
+      conn = opener.open(req, timeout = timeout)
 
     resp = conn.read()
     conn.close()

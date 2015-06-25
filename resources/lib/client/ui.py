@@ -61,10 +61,39 @@ class Ui:
       {'label': self._plugin.get_string(30003), 'path': self._plugin.url_for('search'),   'is_playable': False, 'thumbnail': self._imageUrl('search') },
     ]
 
+
+  def SpeedTestDialog(self, hostlist):
+    dialog  = self._gui.DialogProgress()
+    dialog.create(self._plugin.get_string(30308))
+    bytes = 719431
+
+    for ix,server in enumerate(hostlist):
+      progress = ix * 100 / len(hostlist)
+      dialog.update(progress, server['country'], server['host'])
+      if server['status'] == 'up':
+        results = self._client.Cache.speedTest(server)
+        hostlist[ix]['speedtest'] = results
+
+      if dialog.iscanceled():
+        break
+
+    dialog.close()
+    return hostlist
+
   def cacheHostDialog(self):
+
+    hostList = self.SpeedTestDialog(self._client._cacheServers['payload'])
     dialog = self._gui.Dialog()
-    hostList = self._client._cacheServers['payload']
-    ret = dialog.select( self._plugin.get_string(30305), [u['host'] for u in hostList if u['status']=='up' ])
+
+    selection = []
+    for u in hostList:
+      if u['speedtest']['mbit'] == 0:
+        u['status'] = 'error'
+
+      line = "%s [%s] (%.2f mbits/s latency: %dms)" % (u['host'], u['status'].upper(), u['speedtest']['mbit'], u['speedtest']['latency'])
+      selection.append(line)
+
+    ret = dialog.select( self._plugin.get_string(30305), selection )
     if isinstance( ret, ( int, long ) ) and ret >= 0: ## cli xbmc returns non-int
       self._plugin.set_setting('cachehost', hostList[ret]['host'])
 
