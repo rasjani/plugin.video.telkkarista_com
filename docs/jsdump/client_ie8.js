@@ -26,6 +26,7 @@ var libStreamingClient = function(host, debug){
 		epg: {},
 		vod: {},
 		cache: {},
+		news: {},
 		documentation: {},
 		cacheServers: [],
 		settings: null,
@@ -42,6 +43,7 @@ var libStreamingClient = function(host, debug){
 		// IE11 is trying to be sneaky.. Still send them to doghouse since cors, wtf? get it right!
 		sendToDogHouse();
 	}
+	//sendToDogHouse();
 
 	function sendToDogHouse() {
 		if(window.location.host.indexOf(host) == -1) {
@@ -197,13 +199,13 @@ var libStreamingClient = function(host, debug){
 				if(!error) {
 					if(parsed.status == 'ok') {
 						if(parsed.payload) defer.resolve(parsed.payload);
-						else defer.resolve(parsed.code);
+						else defer.resolve(parsed.method);
 						delete req;
 					} else {
 						if(parsed.payload) defer.reject(parsed.payload);
 						else {
-							if(parsed.code) defer.reject(parsed.code);
-							else defer.resolve(parsed);
+							if(parsed.message) defer.reject(parsed.message);
+							else defer.resolve(parsed.method);
 						}
 						delete req;
 					}
@@ -213,13 +215,6 @@ var libStreamingClient = function(host, debug){
 
 					delete req;
 				}
-
-			} else if(req.getResponseHeader('Content-Type') === 'data/random') { // Used for speedtest
-
-				delete req.responseText;
-				defer.resolve();
-
-				delete req;
 
 			} else if(req.getResponseHeader('Content-Type') === 'text/plain') {  // Used for checking if proxy is alive
 
@@ -369,8 +364,8 @@ var libStreamingClient = function(host, debug){
 				defer.resolve(status);
 				client.emit('loginRequired');
 			})
-			.error(function(code) {
-				defer.reject(code);
+			.error(function(message) {
+				defer.reject(message);
 			})
 		return defer.promise;
 	}
@@ -386,9 +381,9 @@ var libStreamingClient = function(host, debug){
 				getSettings();
 				setTimeout(keepalive, 1000 * 60);
 			})
-			.error(function(code) {
-				if(debug) console.log('Request failed with code: ' + code);
-				defer.reject(code);
+			.error(function(message) {
+				if(debug) console.log('Request failed with message: ' + message);
+				defer.reject(message);
 			});
 		return defer.promise;
 	}
@@ -518,7 +513,7 @@ var libStreamingClient = function(host, debug){
 		current: { 'parameters': {'streams': 'Array of stream names to get epg for (optional)'}, 'return': { 'success': 'EPG data', 'fail': 'error_in_query' } },
 		next:    { 'parameters': {'streams': 'Array of stream names to get epg for (optional)'}, 'return': { 'success': 'EPG data', 'fail': 'error_in_query' } },
 		range:   { 'parameters': {'from': 'Time from', 'to': 'Time to', 'streams': 'Array of stream names to get epg for (optional)'}, 'return': { 'success': 'EPG data', 'fail': 'error_in_query' } },
-		info: { 'parameters': {'pid': 'Get information about single EPG entry by PID'}, 'return': { 'success': 'EPG entry', 'fail': 'pid_not_found' } },
+		info: { 'parameters': {'pid': 'single pid or array of pids'}, 'return': { 'success': 'EPG entry or array with epg entries', 'fail': 'pid_not_found' } },
 		search: { 'parameters': { 'string': 'String to search for'}, 'return': { 'success': 'EPG data', fail: 'search_error'} }
 	};
 
@@ -578,7 +573,7 @@ var libStreamingClient = function(host, debug){
 		if((vodObject.downloadFormats && vodObject.downloadFormats[format].indexOf(quality) != -1) || vodObject.downloads) {
 			var start = new Date.fromISO(vodObject.start);
 			var date = (''+start.getFullYear()).substr(2,2) + ( ( start.getMonth() + 1 < 10 ) ? '0' + ( start.getMonth() + 1 ) : ( start.getMonth() + 1 ) ) + ( ( start.getDate() < 10 ) ? '0' + start.getDate() : start.getDate() );
-			var time = ( ( start.getHours() < 10 ) ? '0' + start.getHours() : start.getHours() ) + ( ( start.getMinutes() < 10 ) ? '0' + start.getMinutes() : start.getMinutes() );
+			var time = ( ( start.getHours() < 10 ) ? '0' + start.getHours() : start.getHours() ) + '' + ( ( start.getMinutes() < 10 ) ? '0' + start.getMinutes() : start.getMinutes() );
 			var fileTitle = vodObject.title.fi.replace(/ \(([0-9]+)\)/,'').replace(/[áàâäå]/g, 'a').replace(/[óòôö]/g,'o').replace(/[ÁÂÄÅ]/g,'A').replace(/[ÒÓÔÖ]/g,'O').replace(/[^A-Za-z0-9\-_]/g, '-');
 			fileTitle = fileTitle.replace(/ \([a-zA-Z0-9]+\)/g,'');
 			fileTitle = fileTitle.replace(/[^\w|^ä|^ö|^ü|^Ä|^Ö|^Ü|^ß]/g, "_" );
@@ -688,8 +683,8 @@ var libStreamingClient = function(host, debug){
 				client.emit('speedtestStart',{total: speedtestAmount, done: 0, servers: servers});
 				speedtestRun();
 			})
-			.error(function(code) {
-				if(debug) console.log(code);
+			.error(function(message) {
+				if(debug) console.log(message);
 			});
 	}
 
@@ -754,6 +749,22 @@ var libStreamingClient = function(host, debug){
 	client.cache.getUrl = function(path, cacheServer) {
 		var url = 'https://' + (cacheServer?cacheServer:client.cacheServers[0].host) + '/' + client.user.session + path
 		return url;
+	}
+
+	/*
+	 * News
+	 */
+	client.documentation.news = {
+		get: { 'parameters': 'none', 'return': 'Array of news objects' },
+		add: { 'parameters': {'title': 'Title of news', 'author': 'Name of author', 'content': 'Content of news'}, 'return': 'News object' }
+	};
+
+	client.news.get = function() {
+		return request('news/get');
+	}
+
+	client.news.add = function(title, author, content) {
+		return request('news/add', {title: title, author: author, content: content});
 	}
 
 
