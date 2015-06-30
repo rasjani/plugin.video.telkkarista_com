@@ -199,14 +199,24 @@ class Client():
 
     self._epg = self._plugin.get_storage('epgdata', TTL=20160)
 
+  def login(self):
+    ret = self.User.login()
+    if ret == True:
+      settings = self.User.settings()
+      if settings != None:
+        for item in settings:
+          if 'setting' in item and 'value' in item:
+            self._settings[item['setting']] = item['value']
+
+
   def handleLogin(self):
     invalidateCache = False
     if self._sessionId != None:
       if self.User.checkSession() == False:
         invalidateCache = True
-        self.User.login()
+        self.login()
     else:
-      self.User.login()
+      self.login()
       invalidateCache = True
 
     self.populateCache(invalidateCache)
