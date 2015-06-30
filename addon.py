@@ -17,9 +17,6 @@ def live():
 
 @plugin.route('/searchByKeyword/<token>', name="searchByKeyword")
 def searchByKeyword(token = None):
-  if token != None:
-    telkkarista.ui.addSearchKeyword(token)
-
   return telkkarista.ui.Search(token)
 
 @plugin.route('/programs/<chanid>/<timescope>/<page>', name='programs_showprogramlist' )
@@ -42,6 +39,7 @@ def programs(chanid = None, timescope = None, page=0):
 def newsearchbykeyword():
   searchKeyword = telkkarista.ui.SearchDialog()
   if searchKeyword != None:
+    telkkarista.ui.addSearchKeyword(searchKeyword)
     return searchByKeyword(searchKeyword)
 
 
