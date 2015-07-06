@@ -11,8 +11,14 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <language></language>
-    <summary>Summary for "Telkkarista"</summary>
-    <description>Description for "Telkkarista"</description>
+    <language>en fi se</language>
+    <summary lang="fi">Katso telkkarista.com palvelun sisältöä KODI'lla</summary>
+    <summary lang="en">Watch telkkarista.com content with KODI</summary>
+    <summary lang="se">Titta telkkarista.com innehåll med KODI</summary>
+    <description lang="en">Watch live and recorded shows of Finnish television channals. Requires paid subscription. For more information: http://telkkarista.com</description>
+    <description lang="fi">Katso suomalaisten tv kanavien ohjelmia suoratoistona tai tallenteina. Palvelun käyttöön tarvitaan maksullinen käyttäjätunnus. Lisätietoja: http://telkkarista.com</description>
+    <description lang="se">Titta levande och inspelade shower finländska tv channals. Kräver betald prenumeration. För mer information: http://telkkarista.com</description>
+    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <email>jani dot mikkonen at gmail dot com</email>
   </extension>
 </addon>
