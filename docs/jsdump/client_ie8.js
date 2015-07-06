@@ -27,6 +27,7 @@ var libStreamingClient = function(host, debug){
 		vod: {},
 		cache: {},
 		news: {},
+		time: {},
 		documentation: {},
 		cacheServers: [],
 		settings: null,
@@ -429,30 +430,19 @@ var libStreamingClient = function(host, debug){
 				delete client.user.session;
 				client.emit('loginRequired');
 			});
-		//if(client.suckyBrowser) {
-			var testFile = 'https://' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
+			
+		var testFile = 'https://' + client.cacheServers[0].host + '/check.jpg?'+new Date().getTime();
 
-			var _tmp = new Image();
+		var _tmp = new Image();
 
-			_tmp.onload = function() {
-				// all ok
-			}
-			_tmp.onerror = function() {
-				if(debug) console.log('Cache server check fail!');
-				client.cacheServers.splice(0,1);
-			}
-			_tmp.src = testFile;
-
-		/*} else {
-			request(false, false, 'http://' + client.cacheServers[0].host + '/check')
-				.then(function() {
-					// all ok
-				})
-				.error(function() {
-					if(debug) console.log('Cache server check fail!');
-					client.cacheServers.splice(0,1);
-				});
-		}*/
+		_tmp.onload = function() {
+			// all ok
+		}
+		_tmp.onerror = function() {
+			if(debug) console.log('Cache server check fail!');
+			client.cacheServers.splice(0,1);
+		}
+		_tmp.src = testFile;
 	}
 
 	/*
@@ -538,7 +528,7 @@ var libStreamingClient = function(host, debug){
 	}
 
 	client.epg.search = function(string) {
-		return request('epg/search', {search: '"' + string + '"'});
+		return request('epg/search', {search: string});
 	}
 
 	client.epg.titleSearch = function(title) {
@@ -765,6 +755,17 @@ var libStreamingClient = function(host, debug){
 
 	client.news.add = function(title, author, content) {
 		return request('news/add', {title: title, author: author, content: content});
+	}
+
+	/*
+	 * Time
+	 */
+	client.documentation.time = {
+		get: { 'parameters': 'none', 'return': 'ISO String of current server time' }
+	};
+
+	client.time.get = function() {
+		return request('time/get');
 	}
 
 
