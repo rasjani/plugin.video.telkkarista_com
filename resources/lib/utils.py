@@ -10,8 +10,8 @@ import htmlentitydefs
 import re
 
 def unescape(text):
-  def fixup(m):
-    text = m.group(0)
+  def fixup(res):
+    text = res.group(0)
     if text[:2] == "&#":
       # character reference
       try:
@@ -28,27 +28,27 @@ def unescape(text):
       except KeyError:
         pass
     return text # leave as is
-  return re.sub("&#?\w+;", fixup, text)
+  return re.sub(r"&#?\w+;", fixup, text)
 
-def parseDate(date):
-  date =  dateutil.parser.parse(date)
+def parse_date(date):
+  date = dateutil.parser.parse(date)
   date = date.astimezone(dateutil.tz.gettz('Europe/Helsinki'))
   return date
 
-def formatStartTime(date, isMovie):
-  if isMovie:
+def format_start_time(date, is_movie):
+  if is_movie:
     return "%02d.%02d %02d:%02d" % (date.day, date.month, date.hour, date.minute)
   else:
     return "%02d:%02d" % (date.hour, date.minute)
 
-def startOfTheDay(current):
+def start_of_the_day(current):
   date = current
   if date.hour < 4:
     date = date - datetime.timedelta(days=1)
   date = date.replace(hour=3, minute=0, second=0)
   return date
 
-def endOfTheDay(current):
+def end_of_the_day(current):
   date = current
   date = date + datetime.timedelta(days=1)
   date = date.replace(hour=2, minute=59, second=0)
@@ -57,37 +57,37 @@ def endOfTheDay(current):
 def now():
   return datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
 
-def generateTimeRange(timeScope):
-  currentTime = now()
-  timeScope = int(timeScope)
-  if timeScope == 0:
-    toTime = currentTime
-    fromTime = startOfTheDay(currentTime)
-  elif timeScope == 1:
-    fromTime = startOfTheDay(currentTime - datetime.timedelta(days=1))
-    toTime = endOfTheDay(fromTime)
-  elif timeScope == 2:
-    toTime = currentTime
-    fromTime = startOfTheDay(startOfTheDay(toTime - datetime.timedelta(days=7)))
-  elif timeScope == 4:
-    toTime = currentTime
-    fromTime = startOfTheDay(currentTime - datetime.timedelta(days=14))
+def generate_time_range(time_scope):
+  current_time = now()
+  time_scope = int(time_scope)
+  if time_scope == 0:
+    to_time = current_time
+    from_time = start_of_the_day(current_time)
+  elif time_scope == 1:
+    from_time = start_of_the_day(current_time - datetime.timedelta(days=1))
+    to_time = end_of_the_day(from_time)
+  elif time_scope == 2:
+    to_time = current_time
+    from_time = start_of_the_day(start_of_the_day(to_time - datetime.timedelta(days=7)))
+  elif time_scope == 4:
+    to_time = current_time
+    from_time = start_of_the_day(current_time - datetime.timedelta(days=14))
   else:
-    toTime = currentTime
-    fromTime = currentTime - datetime.timedelta(days=1)
+    to_time = current_time
+    from_time = current_time - datetime.timedelta(days=1)
 
-  return [fromTime.isoformat(), toTime.isoformat()]
+  return [from_time.isoformat(), to_time.isoformat()]
 
 
-def unixtimestampms(dt = None):
-  if dt == None:
-    dt = now()
+def unixtimestamp_in_ms(datet=None):
+  if datet == None:
+    datet = now()
 
-  return int( time.mktime(dt.timetuple())*1e3 + dt.microsecond/1e3)
+  return int(time.mktime(datet.timetuple())*1e3+datet.microsecond/1e3)
 
-def unixtimestamp(dt = None):
-  if dt != None:
-    return int(time.mktime(dt.timetuple()))
+def unixtimestamp(datet=None):
+  if datet != None:
+    return int(time.mktime(datet.timetuple()))
   else:
     return int(time.mktime(now()))
 

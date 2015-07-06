@@ -7,7 +7,7 @@ class Streams(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    self.apiBase = "streams"
+    self.api_base = "streams"
 
   def get(self):
-    return self.apiCall("get")
+    return self.api_call("get")
