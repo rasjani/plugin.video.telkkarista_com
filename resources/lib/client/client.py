@@ -2,11 +2,11 @@
 
 __author__ = 'rasjani'
 
-from .user import User
-from .streams import Streams
-from .epg import Epg
-from .vod import Vod
-from .cache import Cache
+from ..api import User
+from ..api import Streams
+from ..api import Epg
+from ..api import Vod
+from ..api import Cache
 from .ui import Ui
 
 
