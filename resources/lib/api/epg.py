@@ -6,25 +6,25 @@ class Epg(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    self.apiBase = "epg"
+    self.api_base = "epg"
 
   def current(self):
-    return self.apiCall("current")
+    return self.api_call("current")
 
   def search(self, data):
-    return self.apiCall("search", data )
+    return self.api_call("search", data)
 
-  def searchMovies(self):
-    return self.search( {"search":"elokuva"} )
+  def search_movies(self):
+    return self.search({"search":"elokuva"})
 
   def info(self, pid):
-    return self.apiCall("info", { "pid": pid})
+    return self.api_call("info", {"pid": pid})
 
   def range(self, data):
-    return self.apiCall("range", data )
+    return self.api_call("range", data)
 
   def titles(self):
-    return self.apiCall("titles")
+    return self.api_call("titles")
 
-  def titleSearch(self, title):
-    return self.apiCall("titleSearch", { "search": title})
+  def title_search(self, title):
+    return self.api_call("titleSearch", {"search": title})

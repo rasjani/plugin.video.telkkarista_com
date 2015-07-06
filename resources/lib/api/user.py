@@ -8,29 +8,29 @@ class User(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    self.apiBase = "user"
+    self.api_base = "user"
 
   def login(self):
     email = self._plugin.get_setting('email', unicode)
     password = self._plugin.get_setting('password', unicode);
 
-    payload = self.apiCall('login', {'password':password,'email':email })
+    payload = self.api_call('login', {'password':password, 'email':email})
 
     if payload:
-      self._client.setSessionId(payload)
+      self._client.set_session_id(payload)
       return True
     else:
       return False
 
-  def checkSession(self):
-    payload = self.apiCall("checkSession")
+  def check_session(self):
+    payload = self.api_call("checkSession")
     return payload != None
 
   def info(self):
-    return self.apiCall("info")
+    return self.api_call("info")
 
   def settings(self):
-    return self.apiCall("settings")
+    return self.api_call("settings")
 
 
 

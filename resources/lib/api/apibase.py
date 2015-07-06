@@ -2,16 +2,15 @@
 
 __author__ = 'rasjani'
 
-import urllib2
 import json
 
 class APIBaseMixin(object):
-  def apiCall(self, method, data=None, path=None):
-    requestSuccess = "%s/%s" % (self.apiBase, method)
+  def api_call(self, method, data=None, path=None):
+    request_success = "%s/%s" % (self.api_base, method)
 
-    response = self._client.request("%s/%s" % (self.apiBase, method), data, path)
+    response = self._client.request("%s/%s" % (self.api_base, method), data, path)
     response = json.loads(response)
-    if response['status'] == 'ok' and response['method'] == requestSuccess:
+    if response['status'] == 'ok' and response['method'] == request_success:
       return response['payload']
     else:
       self._plugin.log.debug("Missing error handling")

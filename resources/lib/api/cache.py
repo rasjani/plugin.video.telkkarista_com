@@ -11,36 +11,36 @@ class Cache(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    self.apiBase = "cache"
+    self.api_base = "cache"
 
   def get(self):
-    return self.apiCall("get")
+    return self.api_call("get")
 
 
-  def speedTest(self, server):
+  def speed_test(self, server):
 
     timeout = 15 # seconds
-    bytes = 719431
+    incoming_bytes = 719431
     mbit = 0
     length = 0
     latency = 0
     try:
-      speedTestStart = utils.unixtimestampms(utils.now())
-      speedTestUrl = 'https://%s/speedtest.jpg?%s' % ( server['host'], speedTestStart)
-      self._client.request("", path = speedTestUrl, timeout = timeout )
-      speedTestEnd = utils.unixtimestampms(utils.now())
-      duration = speedTestEnd - speedTestStart
+      speed_test_start = utils.unixtimestamp_in_ms(utils.now())
+      speed_test_url = 'https://%s/speedtest.jpg?%s' %(server['host'], speed_test_start)
+      self._client.request("", path=speed_test_url, timeout=timeout)
+      speed_test_end = utils.unixtimestamp_in_ms(utils.now())
+      duration = speed_test_end - speed_test_start
 
-      latencyTestStart = utils.unixtimestampms(utils.now())
-      latencyTestUrl = 'https://%s/check.jpg?%s' % ( server['host'], latencyTestStart)
-      self._client.request("", path = latencyTestUrl, timeout = timeout)
-      latencyTestEnd = utils.unixtimestampms(utils.now())
+      latency_test_start = utils.unixtimestamp_in_ms(utils.now())
+      latency_test_url = 'https://%s/check.jpg?%s' %(server['host'], latency_test_start)
+      self._client.request("", path=latency_test_url, timeout=timeout)
+      latency_test_end = utils.unixtimestamp_in_ms(utils.now())
 
-      mbit = (((bytes/1024.0)/1024.0)*8.0)/(duration/1000.0)
+      mbit = (((incoming_bytes/1024.0)/1024.0)*8.0)/(duration/1000.0)
       length = duration/1000.0
-      latency = latencyTestEnd - speedTestStart
+      latency = latency_test_end - speed_test_start
 
-    except (urllib2.URLError, socket.timeout) as e:
+    except (urllib2.URLError, socket.timeout) as excpt:
       pass
 
     return {

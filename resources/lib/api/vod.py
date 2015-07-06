@@ -8,7 +8,7 @@ class Vod(APIBaseMixin):
   def __init__(self, client, plugin):
     self._client = client
     self._plugin = plugin
-    self.apiBase = "vod"
+    self.api_base = "vod"
 
   def info(self, pid):
-    return self.apiCall("info", {"pid": pid })
+    return self.api_call("info", {"pid": pid})
