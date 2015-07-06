@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+  <!-- TODO: Translate these two swedish -->
+  <string id="30000">Telkkarista.com</string>
+  <string id="30001">Live channels</string>
+  <string id="30002">Programs</string>
+  <string id="30003">Search</string>
+  <string id="30004">Settings</string>
+  <string id="30005">Movies</string>
+  <string id="30006">Next Page</string>
+  <string id="30007">Previous Page</string>
+
+  <string id="30100">Proxy Settings</string>
+  <string id="30101">Use Proxy</string>
+  <string id="30102">Host</string>
+  <string id="30103">Port</string>
+
+  <string id="30200">Miscellaneous</string>
+  <string id="30201">Debug Mode</string>
+
+  <string id="30300">Account</string>
+  <string id="30301">Email</string>
+  <string id="30302">Password</string>
+  <string id="30303">Current</string>
+  <string id="30304">Pick the nearest</string>
+  <string id="30305">Stream Host</string>
+  <string id="30306">Stream Quality</string>
+  <string id="30307">Items per page</string>
+  <string id="30308">Running speed test</string>
+
+  <string id="30400">Lowest</string>
+  <string id="30401">Low</string>
+  <string id="30402">Medium</string>
+  <string id="30403">High</string>
+  <string id="30404">Highest</string>
+  <string id="30405">720p</string>
+  <string id="30406">1080p</string>
+  <string id="30406">Auto-detect</string>
+
+  <string id="30500">Today</string>
+  <string id="30501">Yesterday</string>
+  <string id="30502">This Week</string>
+  <string id="30503">All</string>
+
+  <string id="30600">10</string>
+  <string id="30601">20</string>
+  <string id="30602">30</string>
+
+  <string id="30700">By Keyword</string>
+  <string id="30701">By Title</string>
+  <string id="30702">New Keyword search</string>
+  <string id="30703">New Title search</string>
+</strings>
