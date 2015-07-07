@@ -146,10 +146,10 @@ class Client():
         full_title = ''
         epg_language = self.lang[self._plugin.get_setting('epglang',int)]
         try:
-          if epg_language in program_info['sub-title']:
-            plot = program_info['sub-title'][epg_language]
+          if epg_language in programInfo['sub-title']:
+            plot = programInfo['sub-title'][epg_language]
           else:
-            plot = program_info['sub-title']['fi'] # fall-back to fi
+            plot = programInfo['sub-title']['fi'] # fall-back to fi
         except:
           pass
 
@@ -166,10 +166,10 @@ class Client():
           endTime = utils.now()
 
         try:
-          if epg_language in program_info['title']:
-            full_title = program_info['title'][epg_language]
+          if epg_language in programInfo['title']:
+            full_title = programInfo['title'][epg_language]
           else:
-            full_title = program_info['title']['fi']
+            full_title = programInfo['title']['fi']
         except:
           pass
 
