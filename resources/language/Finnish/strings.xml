@@ -27,6 +27,7 @@
   <string id="30306">Kuvan Laatu</string>
   <string id="30307">Sivukoko</string>
   <string id="30308">Ajetaan nopeus testejä</string>
+  <string id="30309">EPG Kieli</string>
 
   <string id="30400">Matalin</string>
   <string id="30401">Matala</string>
@@ -45,6 +46,9 @@
   <string id="30600">10</string>
   <string id="30601">20</string>
   <string id="30602">30</string>
+
+  <string id="30610">Suomi</string>
+  <string id="30611">Ruotsi</string>
 
   <string id="30700">Hakusanalla</string>
   <string id="30701">Ohjelman nimellä</string>

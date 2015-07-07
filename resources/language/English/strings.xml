@@ -27,6 +27,8 @@
   <string id="30306">Stream Quality</string>
   <string id="30307">Items per page</string>
   <string id="30308">Running speed test</string>
+  <string id="30309">EPG Language</string>
+
 
   <string id="30400">Lowest</string>
   <string id="30401">Low</string>
@@ -45,6 +47,9 @@
   <string id="30600">10</string>
   <string id="30601">20</string>
   <string id="30602">30</string>
+
+  <string id="30610">Finnish</string>
+  <string id="30611">Swedish</string>
 
   <string id="30700">By Keyword</string>
   <string id="30701">By Title</string>

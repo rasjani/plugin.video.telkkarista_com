@@ -31,14 +31,19 @@ class Client():
 
 
   quality = {
-      0: 'lowest',
-      1: 'low',
-      2: 'med',
-      3: 'hi',
-      4: 'highest',
-      5: '720p',
-      6: '1080p',
-      7: 'master'
+    0: 'lowest',
+    1: 'low',
+    2: 'med',
+    3: 'hi',
+    4: 'highest',
+    5: '720p',
+    6: '1080p',
+    7: 'master'
+  }
+
+  lang = {
+    0: 'fi',
+    1: 'se',
   }
 
   itemsPerPage = {
@@ -138,10 +143,17 @@ class Client():
         startTime = None
         mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
         plot = ''
+        full_title = ''
+        epg_language = self.lang[self._plugin.get_setting('epglang',int)]
         try:
-          plot = utils.unescape(programInfo['sub-title']['fi'])
+          if epg_language in program_info['sub-title']:
+            plot = program_info['sub-title'][epg_language]
+          else:
+            plot = program_info['sub-title']['fi'] # fall-back to fi
         except:
           pass
+
+        plot = utils.unescape(plot)
 
         try:
           startTime = utils.parseDate(programInfo['start'])
@@ -152,9 +164,16 @@ class Client():
           endTime = utils.parseDate(programInfo['stop'])
         except:
           endTime = utils.now()
+
+        try:
+          if epg_language in program_info['title']:
+            full_title = program_info['title'][epg_language]
+          else:
+            full_title = program_info['title']['fi']
+        except:
           pass
 
-        title = utils.unescape(programInfo['title']['fi'].replace('Elokuva: ','').replace('Kotikatsomo: ',''))
+        title = utils.unescape(full_title.replace('Elokuva: ', '').replace('Kotikatsomo: ', ''))
 
         if isMovie:
           # FOX's leffamaailma doesnt show title correctly.
