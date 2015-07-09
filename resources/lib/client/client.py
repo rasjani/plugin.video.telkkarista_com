@@ -96,7 +96,26 @@ class Client():
     url = "https://%s/%s/%s" & (self.streamService, self_sessionId , path )
     return url
 
-  def populateProgramInfoCache(self, programs):
+  def populateProgramEpgData(self, programs):
+    #FIXME: merge with populateMovieEpgData
+    amount = 50
+    pidsToFetch = []
+    for program in programs:
+      if not program['pid'] in self._epg:
+        pidsToFetch.append(program['pid'])
+
+    while len(pidsToFetch)>0:
+      fetch = pidsToFetch[0:amount]
+      toBeStored = self.Epg.info(fetch)
+      del pidsToFetch[0:amount]
+
+      for programInfo in toBeStored:
+        pid = programInfo['_id']
+        self._epg[pid] = programInfo
+
+    self._epg.sync()
+
+  def populateMovieEpgData(self, programs):
     amount = 50
     pidsToFetch = []
     for program in programs:

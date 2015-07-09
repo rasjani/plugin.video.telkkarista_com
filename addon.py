@@ -15,9 +15,9 @@ def cachehost():
 def live():
   return telkkarista.ui.LiveTVView()
 
-@plugin.route('/searchByKeyword/<token>', name="searchByKeyword")
-def searchByKeyword(token = None):
-  return telkkarista.ui.Search(token)
+@plugin.route('/searchByKeyword/<token>/<page>', name="searchByKeyword")
+def searchByKeyword(token = None, page = 0):
+  return telkkarista.ui.Search(token, int(page))
 
 @plugin.route('/programs/<chanid>/<timescope>/<page>', name='programs_showprogramlist' )
 @plugin.route('/programs/<chanid>', name='programs_showchannellist')
