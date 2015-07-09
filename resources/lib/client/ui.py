@@ -13,7 +13,7 @@ class Ui:
     self._xbmc = xbmc
 
   def _imageUrl(self, channelId):
-    return 'special://home/addons/%s/resources/media/%s.png' % ( self._client.clientName, channelId )
+    return self._xbmc.translatePath('special://home/addons/%s/resources/media/%s.png' % ( self._client.clientName, channelId ))
 
   def ProgramsChannelList(self):
     menu = []
