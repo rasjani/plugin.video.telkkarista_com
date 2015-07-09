@@ -28,6 +28,7 @@ class Client():
   apiVersion = '1'
   streamService = ''
   debug = False
+  user_logged_in = False
 
 
   quality = {
@@ -227,21 +228,28 @@ class Client():
           if 'setting' in item and 'value' in item:
             self._settings[item['setting']] = item['value']
 
+    return ret
+
+
 
   def handleLogin(self):
     invalidateCache = False
+    login_success = False
     if self._sessionId != None:
       if self.User.checkSession() == False:
         invalidateCache = True
-        self.login()
+        login_success = self.login()
     else:
-      self.login()
+      login_success = self.login()
       invalidateCache = True
 
-    self.populateCache(invalidateCache)
+    self.user_logged_in = login_success
 
-    if not self.checkCacheServer():
-      self.ui.cacheHostDialog()
+    if login_success:
+      self.populateCache(invalidateCache)
+      if not self.checkCacheServer():
+        self.ui.cacheHostDialog()
+
 
   def setSessionId(self, id):
     self._plugin.set_setting("sessionId", id)

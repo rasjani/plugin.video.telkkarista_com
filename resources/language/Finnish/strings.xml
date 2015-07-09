@@ -54,4 +54,8 @@
   <string id="30701">Ohjelman nimellä</string>
   <string id="30702">Uusi hakusana haku</string>
   <string id="30703">Uusi ohjelman nimi hake</string>
+
+  <string id="30800">Väärä salanasa</string>
+  <string id="30801">Tunnistamaton virhe!</string>
+  <string id="30802">Tunnistamaton käyttäjä</string>
 </strings>

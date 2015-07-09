@@ -5,12 +5,12 @@ import json
 from .. import utils
 
 class Ui:
+
   def __init__(self, plugin, xbmcgui, xbmc, client):
     self._plugin = plugin
     self._gui = xbmcgui
     self._client = client
     self._xbmc = xbmc
-
 
   def _imageUrl(self, channelId):
     return 'special://home/addons/%s/resources/media/%s.png' % ( self._client.clientName, channelId )
@@ -27,6 +27,11 @@ class Ui:
         'path': self._plugin.url_for('programs_showchannellist', chanid = channelId)
       })
     return menu
+
+  def login_fail_dialog(self, error_msg):
+    dialog = self._gui.Dialog()
+    message = self._plugin.get_string(utils.error_message_lookup(error_msg))
+    dialog.notification(self._plugin.get_string(30000), message, self._gui.NOTIFICATION_ERROR, 5000, False)
 
 
   def TimeScopeSelection(self, chanid):

@@ -16,7 +16,7 @@ class User(APIBaseMixin):
 
     payload = self.apiCall('login', {'password':password,'email':email })
 
-    if payload:
+    if payload != None:
       self._client.setSessionId(payload)
       return True
     else:

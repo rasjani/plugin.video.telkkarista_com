@@ -9,6 +9,13 @@ import time
 import htmlentitydefs
 import re
 
+
+_error_msg_lookup = {
+  'invalid_password': 30800,
+  'unknown_error': 30801,
+  'user_not_found': 30802
+}
+
 def unescape(text):
   def fixup(m):
     text = m.group(0)
@@ -91,3 +98,8 @@ def unixtimestamp(dt = None):
   else:
     return int(time.mktime(now()))
 
+def error_message_lookup(error_msg):
+  if error_msg in _error_msg_lookup:
+    return _error_msg_lookup[error_msg]
+  else:
+    return _error_msg_lookup['unknown_error']

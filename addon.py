@@ -53,7 +53,11 @@ def movies( page = 0 ):
 
 @plugin.route('/')
 def index():
-  return telkkarista.ui.MainMenu()
+  if not telkkarista.user_logged_in:
+    telkkarista.ui.login_fail_dialog(telkkarista.User.last_error)
+    return []
+  else:
+    return telkkarista.ui.MainMenu()
 
 
 if __name__ == '__main__':

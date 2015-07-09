@@ -55,4 +55,9 @@
   <string id="30701">By Title</string>
   <string id="30702">New Keyword search</string>
   <string id="30703">New Title search</string>
+
+  <string id="30800">Invalid password</string>
+  <string id="30801">Unknown error occured</string>
+  <string id="30802">User not found</string>
+
 </strings>
