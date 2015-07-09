@@ -239,6 +239,8 @@ class Client():
       if self.User.checkSession() == False:
         invalidateCache = True
         login_success = self.login()
+      else:
+        login_success = True
     else:
       login_success = self.login()
       invalidateCache = True
