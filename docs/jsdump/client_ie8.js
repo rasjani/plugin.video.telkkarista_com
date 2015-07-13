@@ -18,7 +18,7 @@ var libStreamingClient = function(host, debug){
 	var client = {
 		apiEndpoint: 'https://api.' + host,
 		loginService: 'https://login.' + host,
-		versionString: 'libStreamingClient/0.1.5 20150313 (friday the 13th edition)',
+		versionString: 'libStreamingClient/0.1.8 20150708 (release day)',
 		apiVersion: '1',
 		storage: null,
 		user: {},
@@ -28,6 +28,8 @@ var libStreamingClient = function(host, debug){
 		cache: {},
 		news: {},
 		time: {},
+		feedback: {},
+		payment: {},
 		documentation: {},
 		cacheServers: [],
 		settings: null,
@@ -202,6 +204,11 @@ var libStreamingClient = function(host, debug){
 						if(parsed.payload) defer.resolve(parsed.payload);
 						else defer.resolve(parsed.method);
 						delete req;
+					} else if(parsed.status == 'error') {
+						if(parsed.payload) defer.reject(parsed.payload);
+						else if(parsed.message) defer.reject(parsed.message);
+						else defer.reject();
+						delete req;
 					} else {
 						if(parsed.payload) defer.reject(parsed.payload);
 						else {
@@ -280,11 +287,7 @@ var libStreamingClient = function(host, debug){
 		 * Check for external login session
 		 */
 		if(window.location.href.indexOf('ext-login-session') != -1) {
-			var queryParams = [];
-			window.location.href.slice(window.location.href.indexOf('?') + 1).split('&').forEach(function(hash) {
-				hash = hash.split('=');
-				queryParams[hash[0]] = hash[1]; 
-			});
+			var queryParams = parseQueryParams();
 
 			session = queryParams['ext-login-session'];
 			client.storage.set('session', session);
@@ -299,6 +302,36 @@ var libStreamingClient = function(host, debug){
 			session = client.storage.get('session');
 		}
 		
+		/*
+		 * Check if we have email verification / activation code in our url
+		 */
+		if(window.location.href.indexOf('ext-verify-email') != -1) {
+			var queryParams = parseQueryParams();
+			if(window.history && window.history.replaceState) {
+				window.history.replaceState( {} , '', window.location.href.split('?')[0]);
+			}
+			
+			client.user.verifyEmail(queryParams['ext-verify-email'])
+				.then(function() {
+					client.emit('emailVerified');
+				})
+				.error(function(err) {
+					client.emit('emailVerificationFailed');
+				});
+		}
+
+		/*
+		 * Check if we have forgot password code in our url
+		 */
+		if(window.location.href.indexOf('ext-forgot-password') != -1) {
+			var queryParams = parseQueryParams();
+			if(window.history && window.history.replaceState) {
+				window.history.replaceState( {} , '', window.location.href.split('?')[0]);
+			}
+
+			client.emit('forgotPassword', queryParams['ext-forgot-password']);
+		}
+
 		if(!session) {
 			client.emit('loginRequired');
 			return;
@@ -316,6 +349,16 @@ var libStreamingClient = function(host, debug){
 				client.storage.del('session');
 				client.emit('loginRequired');
 			});
+
+	}
+
+	function parseQueryParams() {
+		var queryParams = [];
+		window.location.href.slice(window.location.href.indexOf('?') + 1).split('&').forEach(function(hash) {
+			hash = hash.split('=');
+			queryParams[hash[0]] = hash[1]; 
+		});
+		return queryParams;
 	}
 
 
@@ -349,7 +392,12 @@ var libStreamingClient = function(host, debug){
 		login:        { 'parameters': {'email': 'Email address', 'password': 'Password'}, 'return': { 'success': 'Session object', 'fail': 'unknown_error, not_found, invalid_password, email_not_verified, failed_to_start_session'} },
 		register:     { 'parameters': {'email': 'Email address', 'password': 'Password'}, 'return': { 'success': 'User object', 'fail': 'failed, email_in_use, invalid_email, password_too_short, salt_error, hash_error, failed_insert_user' } },
 		setSetting:   { 'parameters': {'key': 'value'}, 'return': { 'success': 'setting_saved', 'fail': 'unknown_error, no_session_found, no_user_found' } },
-		edit:         { 'parameters': {'data': 'object with key->value pair of all user data (ie. email, password)' }, 'return': { 'success': 'pipe', 'fail': 'pipe' } }
+		edit:         { 'parameters': {'data': 'object with key->value pair of all user data (ie. email, password)' }, 'return': { 'success': 'pipe', 'fail': 'pipe' } },
+		search:       { 'parameters': {'search': 'search string'}, 'return': { 'success': 'array of user objects', 'fail': 'no_results'} },
+		listActive:   { 'parameters': null, 'return': { 'success': 'array of user objects', fail: ''} },
+		getUser:      { 'parameters': {'user': 'email/id to search for'}, 'return': { 'success': 'User object', fail: 'user_not_found' } },
+		forgotPassword: { 'parameters': {'email': 'email address of user'}, 'return': { 'success': 'ok', fail: '...'} },
+		resetPassword: { 'parameters': {'resetData': 'Reset data', 'password': 'New password to set for user'}, 'return': { 'success': 'ok', fail: 'invalid_email, user_not_found, invalid_code, invalid_new_password, unknown'} }
 	};
 
 	Array('checkSession', 'info', 'listSessions', 'settings').forEach(function(method) {
@@ -394,8 +442,16 @@ var libStreamingClient = function(host, debug){
 		window.location.href = client.loginService + '/' + service + '?return_url=' + window.location.href.split('?')[0];
 	}
 
-	client.user.register = function(email, password) {
-		return request('user/register', {email: email, password: password, return_url: window.location.href.split('?')[0]});
+	client.user.register = function(email, password, lang, registerInfo) {
+		return request('user/register', {email: email, password: password, return_url: window.location.href.split('?')[0], lang: lang, registerInfo: registerInfo});
+	}
+
+	client.user.verifyEmail = function(verifyData) {
+		return request('user/verifyEmail', {verifyData: verifyData});
+	}
+
+	client.user.resetPassword = function(resetData, password) {
+		return request('user/resetPassword', {resetData: resetData, password: password});
 	}
 
 	client.user.setSetting = function(key, value) {
@@ -406,18 +462,49 @@ var libStreamingClient = function(host, debug){
 		return request('user/edit', {data: data});
 	}
 
+	client.user.search = function(search) {
+		return request('user/search', {search: search});
+	}
+
+	client.user.listActive = function() {
+		return request('user/listActive');
+	}
+
+	client.user.getUser = function(user) {
+		return request('user/getUser', {user: user});
+	}
+
+	client.user.forgotPassword = function(email, lang) {
+		return request('user/forgotPassword', {email: email, lang: lang});
+	}
+
+	client.user.resetPassword = function(resetData, password) {
+		return request('user/resetPassword', {resetData: resetData, password: password});
+	}
+
 	function getSettings() {
 		client.user.settings()
 			.then(function(settings) {
 				client.settings = {};
-				settings.forEach(function(setting) {
-					client.settings[setting.setting] = setting.value;
-				});
+				if(Object.keys(settings).length > 0) {
+					Object.keys(settings).forEach(function(key) {
+						client.settings[key] = settings[key];
+					});
+				}
 				getCacheServers();
 			})
 			.error(function() {
 				getCacheServers();
-			});	
+			});
+		client.user.info()
+			.then(function(info) {
+				client.user.email = info.email;
+				client.user.validUntil = info.validUntil;
+				if(info.admin) client.user.admin = info.admin;
+			})
+			.error(function(err) {
+				// could not get userinfo, why?
+			});
 	}
 
 	function keepalive() {
@@ -766,6 +853,28 @@ var libStreamingClient = function(host, debug){
 
 	client.time.get = function() {
 		return request('time/get');
+	}
+
+	/*
+	 * Feedback
+	 */
+	client.documentation.feedback = {
+		send: { 'parameters': {'name': 'Name of user', 'email': 'Email address', message: 'Message content'}, 'return': {'success': 'ok', 'fail': '...'}}
+	};
+
+	client.feedback.send = function(name, email, message) {
+		return request('feedback/send', {name: name, email: email, message: message});
+	}
+
+	/*
+	 * Payment
+	 */
+	client.documentation.payment = {
+		getPackages: { 'parameters': 'none', 'return': {'success': 'List of available packages', fail: '...'}}
+	};
+
+	client.payment.getPackages = function() {
+		return request('payment/getPackages');
 	}
 
 
