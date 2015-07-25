@@ -28,6 +28,7 @@
   <string id="30307">Items per page</string>
   <string id="30308">Running speed test</string>
   <string id="30309">EPG Language</string>
+  <string id="30310">Stream Format</string>
 
 
   <string id="30400">Lowest</string>
@@ -59,5 +60,9 @@
   <string id="30800">Invalid password</string>
   <string id="30801">Unknown error occured</string>
   <string id="30802">User not found</string>
+  <string id="30803">Recording not available with current settings</string>
+
+  <string id="30900">HLS</string>
+  <string id="30901">MP4</string>
 
 </strings>
