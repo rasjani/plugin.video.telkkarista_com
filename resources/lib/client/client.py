@@ -30,16 +30,15 @@ class Client():
   debug = False
   user_logged_in = False
 
-
   quality = {
-    0: 'lowest',
-    1: 'low',
-    2: 'med',
-    3: 'hi',
-    4: 'highest',
-    5: '720p',
-    6: '1080p',
-    7: 'master'
+    0: {'name': 'lowest', 'bitrate': 0 },
+    1: {'name': 'low', 'bitrate': 0 },
+    2: {'name': 'med', 'bitrate': 289 },
+    3: {'name': 'hi', 'bitrate': 878 },
+    4: {'name': 'highest', 'bitrate': 1842 },
+    5: {'name': '720p', 'bitrate': 2792 },
+    6: {'name': '1080p', 'bitrate': 4192 },
+    7: {'name': 'master', 'bitrate': 9082 }
   }
 
   lang = {
@@ -92,9 +91,28 @@ class Client():
 
     self.handleLogin()
 
-  def playPid(self, recordpath):
+  def playPid(self, pid):
     quality = self._plugin.get_setting('streamQuality', int)
-    mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, recordpath, self.quality[quality])
+    streamformat = self._plugin.get_setting('streamFormat')
+    programInfo = self.getProgramInfo(pid)
+    mediaUrl = None
+    if streamformat == 0: # HLS
+      mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality]['name'])
+    else: # MP4
+      try:
+        maxbitrate = self.quality[quality]['bitrate']
+        downloads = filter(lambda item: item['bitrate']<maxbitrate, programInfo['downloads']['mp4'])
+        downloads = sorted(downloads, key=lambda k: k['bitrate'], reverse=True) 
+        download=downloads[0]
+        if download['filesize']>0:
+          mediaUrl = 'https://%s/%s/vod%s%s/x.mp4' % (self.streamService, self._sessionId, programInfo['recordpath'],download['quality'])
+      except:
+        pass
+
+    if mediaUrl == None:
+      mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality]['name'])
+      self.ui.fail_dialog( 30803 )
+
     return self._plugin.set_resolved_url(mediaUrl)
 
 
@@ -104,7 +122,7 @@ class Client():
     if quality == 6: # autodetect
       mediaUrl = 'https://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channel) ## TODO: fix later
     else:
-      mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self.streamService, self._sessionId, channel, self.quality[quality]) ## TODO: fix later
+      mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self.streamService, self._sessionId, channel, self.quality[quality]['name']) ## TODO: fix later
     return self._plugin.set_resolved_url(mediaUrl)
 
   def getUrl(self,path):
@@ -173,9 +191,13 @@ class Client():
   def pidInfo(self, item, isMovie):
     if 'record' in item and item ['record'] == 'storage':
       programInfo =  self.getProgramInfo(item['pid'])
+
+      #TODO: Implement #17 here by providing stub programInfo and make rest of
+      # generation codo to handle missing fields automatically.
+
       if len(programInfo)>0:
         startTime = None
-        mediaUrl = self._plugin.url_for('playpid', recordpath = programInfo['recordpath'] )
+        mediaUrl = self._plugin.url_for('playpid', pid = item['pid'] )
         plot = ''
         full_title = ''
         epg_language = self.lang[self._plugin.get_setting('epglang',int)]

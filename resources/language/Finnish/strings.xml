@@ -28,6 +28,7 @@
   <string id="30307">Sivukoko</string>
   <string id="30308">Ajetaan nopeus testejä</string>
   <string id="30309">EPG Kieli</string>
+  <string id="30310">Lähetys muoto</string>
 
   <string id="30400">Matalin</string>
   <string id="30401">Matala</string>
@@ -58,4 +59,8 @@
   <string id="30800">Väärä salanasa</string>
   <string id="30801">Tunnistamaton virhe!</string>
   <string id="30802">Tunnistamaton käyttäjä</string>
+  <string id="30803">Ei tallennetta nykyisillä asetuksilla</string>
+
+  <string id="30900">HLS</string>
+  <string id="30901">MP4</string>
 </strings>

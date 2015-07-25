@@ -8,9 +8,9 @@ telkkarista = Client('telkkarista.com', plugin, xbmcgui, xbmc)
 
 
 
-@plugin.route('/playpid/<recordpath>', name="playpid")
-def playpid(recordpath = None):
-  telkkarista.playPid(recordpath)
+@plugin.route('/playpid/<pid>', name="playpid")
+def playpid(pid = None):
+  telkkarista.playPid(pid)
 
 @plugin.route('/playlive/<channel>', name="playlive")
 def playpid(channel = None):
@@ -63,7 +63,7 @@ def movies( page = 0 ):
 @plugin.route('/')
 def index():
   if not telkkarista.user_logged_in:
-    telkkarista.ui.login_fail_dialog(telkkarista.User.last_error)
+    telkkarista.ui.fail_dialog(telkkarista.User.last_error)
     return []
   else:
     return telkkarista.ui.MainMenu()
