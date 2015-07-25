@@ -150,10 +150,7 @@ class Ui:
 
       quality = self._plugin.get_setting('streamQuality', int)
       mediaUrl = ''
-      if quality == 6: # autodetect
-        mediaUrl = 'https://%s/%s/live/%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId) ## TODO: fix later
-      else:
-        mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self._client.streamService, self._client._sessionId, channelId, self._client.quality[quality]) ## TODO: fix later
+      mediaUrl = self._plugin.url_for('playlive', channel = channelId )
 
       fanartUrl = 'https://%s/%s/live/%s_large.jpg?%i' % (self._client.streamService, self._client._sessionId, channelId, random.randint(0,2e9)) ## TODO: fix later
       menu.append({

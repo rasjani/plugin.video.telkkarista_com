@@ -7,6 +7,15 @@ plugin = Plugin()
 telkkarista = Client('telkkarista.com', plugin, xbmcgui, xbmc)
 
 
+
+@plugin.route('/playpid/<recordpath>', name="playpid")
+def playpid(recordpath = None):
+  telkkarista.playPid(recordpath)
+
+@plugin.route('/playlive/<channel>', name="playlive")
+def playpid(channel = None):
+  telkkarista.playLive(channel)
+
 @plugin.route('/cachehost')
 def cachehost():
   telkkarista.ui.cacheHostDialog()

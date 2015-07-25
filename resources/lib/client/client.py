@@ -92,6 +92,21 @@ class Client():
 
     self.handleLogin()
 
+  def playPid(self, recordpath):
+    quality = self._plugin.get_setting('streamQuality', int)
+    mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, recordpath, self.quality[quality])
+    return self._plugin.set_resolved_url(mediaUrl)
+
+
+  def playLive(self, channel):
+    mediaUrl = ''
+    quality = self._plugin.get_setting('streamQuality', int)
+    if quality == 6: # autodetect
+      mediaUrl = 'https://%s/%s/live/%s.m3u8' % (self.streamService, self._sessionId, channel) ## TODO: fix later
+    else:
+      mediaUrl = 'https://%s/%s/live/%s_%s.m3u8' % (self.streamService, self._sessionId, channel, self.quality[quality]) ## TODO: fix later
+    return self._plugin.set_resolved_url(mediaUrl)
+
   def getUrl(self,path):
     url = "https://%s/%s/%s" & (self.streamService, self_sessionId , path )
     return url
@@ -159,9 +174,8 @@ class Client():
     if 'record' in item and item ['record'] == 'storage':
       programInfo =  self.getProgramInfo(item['pid'])
       if len(programInfo)>0:
-        quality = self._plugin.get_setting('streamQuality', int)
         startTime = None
-        mediaUrl = 'https://%s/%s/vod%s%s.m3u8' % (self.streamService, self._sessionId, programInfo['recordpath'], self.quality[quality])
+        mediaUrl = self._plugin.url_for('playpid', recordpath = programInfo['recordpath'] )
         plot = ''
         full_title = ''
         epg_language = self.lang[self._plugin.get_setting('epglang',int)]
