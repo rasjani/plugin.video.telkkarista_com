@@ -49,7 +49,7 @@ class Ui:
     self._client.populateProgramEpgData(tmp[chanid])
 
     programList = sorted(tmp[chanid], key=lambda k: k['start'])
-    return self.ProgramList(programList, False, { 'view': 'programs', 'chanid': chanid, 'page': int(page), 'timescope': timescope}) 
+    return self.ProgramList(programList, False, { 'view': 'programs', 'chanid': chanid, 'page': int(page), 'timescope': timescope})
 
   def ProgramList(self, programList, fullDate, paginationData = {}):
     page  = int(paginationData['page'])
@@ -75,7 +75,7 @@ class Ui:
             timescope=paginationData['timescope'], page=page + 1 ),
           'is_playable': False
         })
-      else: 
+      else:
         menu.append({
           'label': self._plugin.get_string(30006),
           'path': self._plugin.url_for('searchByKeyword', page=page + 1, token=paginationData['token'] ),
@@ -238,7 +238,7 @@ class Ui:
 
     searchResults[searchKeyword]
 
-    return self.ProgramList(searchResults[searchKeyword], True, { 'view': 'search', 'token': searchKeyword, 'page': int(page)}) 
+    return self.ProgramList(searchResults[searchKeyword], True, { 'view': 'search', 'token': searchKeyword, 'page': int(page)})
 
   def SearchDialog(self):
     keyboard =  self._xbmc.Keyboard()

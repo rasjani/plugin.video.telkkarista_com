@@ -18,7 +18,7 @@ class Epg(APIBaseMixin):
     return self.search( {"search":"elokuva"} )
 
   def info(self, pid):
-    return self.apiCall("info", { "pid": pid})
+    return self.apiCall("info", { "pid": pid}, wait=True)
 
   def range(self, data):
     return self.apiCall("range", data )

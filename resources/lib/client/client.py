@@ -15,7 +15,6 @@ from .. import utils
 import urllib2
 import json
 import re
-from time import sleep
 
 
 class Client():
@@ -102,7 +101,7 @@ class Client():
       try:
         maxbitrate = self.quality[quality]['bitrate']
         downloads = filter(lambda item: item['bitrate']<maxbitrate, programInfo['downloads']['mp4'])
-        downloads = sorted(downloads, key=lambda k: k['bitrate'], reverse=True) 
+        downloads = sorted(downloads, key=lambda k: k['bitrate'], reverse=True)
         download=downloads[0]
         if download['filesize']>0:
           mediaUrl = 'https://%s/%s/vod%s%s/x.mp4' % (self.streamService, self._sessionId, programInfo['recordpath'],download['quality'])
@@ -130,7 +129,6 @@ class Client():
     return url
 
   def populateProgramEpgData(self, programs):
-    #FIXME: merge with populateMovieEpgData
     amount = 50
     pidsToFetch = []
     for program in programs:
@@ -170,7 +168,6 @@ class Client():
     if pid in self._epg:
       return self._epg[pid]
     else:
-      sleep(0.4) # Telkkarista backend server seems to throttle request
       programInfo = self.Epg.info(pid)
       if programInfo != None:
         self._epg[pid] = programInfo
