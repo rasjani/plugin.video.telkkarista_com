@@ -2,11 +2,10 @@ from xbmcswift2 import Plugin, xbmcgui, xbmc
 
 from resources.lib import Client
 
+SORT_METHODS = ['date','title']
 plugin = Plugin()
 
 telkkarista = Client('telkkarista.com', plugin, xbmcgui, xbmc)
-
-
 
 @plugin.route('/playpid/<pid>', name="playpid")
 def playpid(pid = None):
@@ -40,6 +39,7 @@ def programs(chanid = None, timescope = None, page=0):
     menu = telkkarista.ui.TimeScopeSelection(chanid)
   else:
     menu = telkkarista.ui.ProgramSelection(chanid, timescope, page)
+    menu = plugin.finish( items = menu, update_listing = True, sort_methods = SORT_METHODS)
 
   return menu
 
@@ -49,7 +49,8 @@ def newsearchbykeyword():
   searchKeyword = telkkarista.ui.SearchDialog()
   if searchKeyword != None:
     telkkarista.ui.addSearchKeyword(searchKeyword)
-    return searchByKeyword(searchKeyword)
+    menu = searchByKeyword(searchKeyword)
+    return plugin.finish( items = menu, update_listing = True, sort_methods = SORT_METHODS )
 
 
 @plugin.route('/search/')
@@ -58,7 +59,7 @@ def search():
 
 @plugin.route('/movies/<page>')
 def movies( page = 0 ):
-  return telkkarista.ui.MoviesView(page)
+  return plugin.finish( items = telkkarista.ui.MoviesView(page), update_listing = True, sort_methods = SORT_METHODS )
 
 @plugin.route('/')
 def index():
