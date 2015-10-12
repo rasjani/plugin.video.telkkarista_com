@@ -8,7 +8,10 @@ import dateutil.parser
 import time
 import htmlentitydefs
 import re
+from pytz import timezone
 
+
+FinlandTZ = timezone('Europe/Helsinki')
 
 _error_msg_lookup = {
   'invalid_password': 30800,
@@ -39,7 +42,8 @@ def unescape(text):
 
 def parseDate(date):
   date =  dateutil.parser.parse(date)
-  date = date.astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+  if FinlandTZ != None:
+    date = date.astimezone(FinlandTZ)
   return date
 
 def formatStartTime(date, isMovie):
@@ -62,7 +66,11 @@ def endOfTheDay(current):
   return date
 
 def now():
-  return datetime.datetime.now(dateutil.tz.tzlocal()).astimezone(dateutil.tz.gettz('Europe/Helsinki'))
+  date = datetime.datetime.now(dateutil.tz.tzlocal())
+  if FinlandTZ != None:
+    date = date.astimezone(FinlandTZ)
+
+  return date
 
 def generateTimeRange(timeScope):
   currentTime = now()
