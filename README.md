@@ -5,6 +5,10 @@ This is a kodi.tv plugin to access telkkarista.com. This plugin is made with the
 
 So bare with me :)
 
+## NOTE TO WINDOWS USERS
+
+Current implementation does not work on any windows platform until bug #14 is fixed. Please
+refrain from sending in bug reports.
 
 ## Installation
 
@@ -12,17 +16,18 @@ No installation procedure yet. If you know what you are doing.
 
 ## Support:
 
-If you find bugs, want features or what ever? Head out to issues page and file a bug report/feature request.
+If you find bugs, want features or what ever? Head out to issues page here: https://github.com/rasjani/plugin.video.telkkarista_com/issues and file a bug report/feature request.
 
 Pull requests also accepted!
 
 ## Dependencies:
 
-* 15.x Isengard 
+* 15.x Isengard
  * its possible to run the plugin also on earlier versions but older kodi releases do not support HLS transfer over https. Telkkarista recently started to redirect all http queries to https and thus, streaming broke.
 * Kodi dependencies. Installed automatically
  * script.module.xbmcswift2
- * script.module.dateutil 
+ * script.module.dateutil
+ * script.module.pytz
 
 
 ### Links
