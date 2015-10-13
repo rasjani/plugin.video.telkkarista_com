@@ -14,15 +14,18 @@ No installation procedure yet. If you know what you are doing.
 
 If you find bugs, want features or what ever? Head out to issues page and file a bug report/feature request.
 
+https://github.com/rasjani/plugin.video.telkkarista_com/issues
+
 Pull requests also accepted!
 
 ## Dependencies:
 
-* 15.x Isengard 
+* 15.x Isengard
  * its possible to run the plugin also on earlier versions but older kodi releases do not support HLS transfer over https. Telkkarista recently started to redirect all http queries to https and thus, streaming broke.
 * Kodi dependencies. Installed automatically
  * script.module.xbmcswift2
- * script.module.dateutil 
+ * script.module.dateutil
+ * script.module.pytz
 
 
 ### Links
