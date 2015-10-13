@@ -12,7 +12,7 @@ def playpid(pid = None):
   telkkarista.playPid(pid)
 
 @plugin.route('/playlive/<channel>', name="playlive")
-def playpid(channel = None):
+def playlive(channel = None):
   telkkarista.playLive(channel)
 
 @plugin.route('/cachehost')
