@@ -11,10 +11,12 @@ class User(APIBaseMixin):
     self.apiBase = "user"
 
   def login(self):
+    payload = None
     email = self._plugin.get_setting('email', unicode)
     password = self._plugin.get_setting('password', unicode);
 
-    payload = self.apiCall('login', {'password':password,'email':email })
+    if len(email)>0 and len(password)>0:
+      payload = self.apiCall('login', {'password':password,'email':email })
 
     if payload != None:
       self._client.setSessionId(payload)

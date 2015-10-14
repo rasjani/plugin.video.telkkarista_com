@@ -60,6 +60,7 @@
   <string id="30801">Tunnistamaton virhe!</string>
   <string id="30802">Tunnistamaton käyttäjä</string>
   <string id="30803">Ei tallennetta nykyisillä asetuksilla</string>
+  <string id="30804">Asetukset tallentamatta - järjestelmään ei voida kirjautua</string>
 
   <string id="30900">HLS</string>
   <string id="30901">MP4</string>

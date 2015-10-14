@@ -114,21 +114,25 @@ class Ui:
 
   def cacheHostDialog(self):
 
-    hostList = self.SpeedTestDialog(self._client._cacheServers['payload'])
-    dialog = self._gui.Dialog()
+    if self._client.settingsInitialized():
+      hostList = self.SpeedTestDialog(self._client._cacheServers['payload'])
+      dialog = self._gui.Dialog()
 
-    selection = []
-    for u in hostList:
-      if 'speedtest' in u:
-        if u['speedtest']['mbit'] == 0:
-          u['status'] = 'error'
+      selection = []
+      for u in hostList:
+        if 'speedtest' in u:
+          if u['speedtest']['mbit'] == 0:
+            u['status'] = 'error'
 
-        line = "%s [%s] (%.2f mbits/s latency: %dms)" % (u['host'], u['status'].upper(), u['speedtest']['mbit'], u['speedtest']['latency'])
-        selection.append(line)
+          line = "%s [%s] (%.2f mbits/s latency: %dms)" % (u['host'], u['status'].upper(), u['speedtest']['mbit'], u['speedtest']['latency'])
+          selection.append(line)
 
-    ret = dialog.select( self._plugin.get_string(30305), selection )
-    if isinstance( ret, ( int, long ) ) and ret >= 0: ## cli xbmc returns non-int
-      self._plugin.set_setting('cachehost', hostList[ret]['host'])
+      ret = dialog.select( self._plugin.get_string(30305), selection )
+      if isinstance( ret, ( int, long ) ) and ret >= 0: ## cli xbmc returns non-int
+        self._plugin.set_setting('cachehost', hostList[ret]['host'])
+    else:
+      self.fail_dialog('settings_not_defined')
+
 
   def LiveTVView(self):
     menu = []
