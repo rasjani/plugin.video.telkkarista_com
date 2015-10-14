@@ -1,0 +1,12 @@
+ cachehost      unicode
+ debug          bool
+ email          unicode
+ epglang        int
+ itemsperpage   int
+ password       unicode
+ proxy_host     unicode
+ proxy_port     unicode
+ sessionId      unicode
+ streamFormat   int
+ streamQuality  int
+ use_proxy      bool
