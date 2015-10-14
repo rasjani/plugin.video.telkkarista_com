@@ -1,5 +1,4 @@
 from xbmcswift2 import Plugin, xbmcgui, xbmc
-
 from resources.lib import Client
 
 SORT_METHODS = ['date','title']
@@ -63,7 +62,10 @@ def movies( page = 0 ):
 
 @plugin.route('/')
 def index():
-  if not telkkarista.user_logged_in:
+  if not telkkarista.settingsInitialized():
+    telkkarista.ui.fail_dialog('settings_not_defined')
+    plugin.open_settings()
+  elif not telkkarista.user_logged_in:
     telkkarista.ui.fail_dialog(telkkarista.User.last_error)
     return []
   else:

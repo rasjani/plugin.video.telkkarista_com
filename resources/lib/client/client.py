@@ -88,11 +88,13 @@ class Client():
     self._sessionId = plugin.get_setting('sessionId', unicode)
     self.streamService = plugin.get_setting('cachehost', unicode)
 
-    self.handleLogin()
+    if self.settingsInitialized():
+      self.handleLogin()
+
 
   def playPid(self, pid):
     quality = self._plugin.get_setting('streamQuality', int)
-    streamformat = self._plugin.get_setting('streamFormat')
+    streamformat = self._plugin.get_setting('streamFormat', int)
     programInfo = self.getProgramInfo(pid)
     mediaUrl = None
     if streamformat == 0: # HLS
@@ -114,6 +116,11 @@ class Client():
 
     return self._plugin.set_resolved_url(mediaUrl)
 
+
+  def settingsInitialized(self):
+    u = self._plugin.get_setting('email', unicode)
+    p = self._plugin.get_setting('password', unicode)
+    return ( u != None and p != None and len(u)>0 and len(p)>0 )
 
   def playLive(self, channel):
     mediaUrl = ''

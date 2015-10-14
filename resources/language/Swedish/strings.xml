@@ -61,6 +61,7 @@
   <string id="30801">Unknown error occured</string>
   <string id="30802">User not found</string>
   <string id="30803">Recording not available with current settings</string>
+  <string id="30804">Settings are not defined, unable to login</string>
 
   <string id="30900">HLS</string>
   <string id="30901">MP4</string>

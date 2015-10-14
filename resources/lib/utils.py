@@ -16,7 +16,9 @@ FinlandTZ = timezone('Europe/Helsinki')
 _error_msg_lookup = {
   'invalid_password': 30800,
   'unknown_error': 30801,
-  'user_not_found': 30802
+  'user_not_found': 30802,
+  'record_not_available': 30803,
+  'settings_not_defined': 30804
 }
 
 def unescape(text):
