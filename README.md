@@ -8,7 +8,7 @@ So bare with me :)
 
 ## Installation
 
-No installation procedure yet. If you know what you are doing.
+Install from official repository
 
 ## Support:
 
